@@ -1,0 +1,17 @@
+{
+  "module_id": "module_01",
+  "module_name": "01_DEGs",
+  "module_type": "differential_expression",
+  "goal": "identify differentially expressed genes",
+  "key_result_tables": [
+    "diffSig.xls",
+    "evidence.csv"
+  ],
+  "scripts": [
+    "edgeR.R"
+  ],
+  "text_inputs": [],
+  "other_files": [
+    "module_context.json"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "module_id": "module_02",
+  "module_name": "02_unicox",
+  "module_type": "univariate_cox",
+  "goal": "identify prognosis-related genes using univariate Cox regression",
+  "key_result_tables": [
+    "uniCox.txt",
+    "diffSig.xls",
+    "evidence.csv"
+  ],
+  "scripts": [
+    "Autophagy.uniCox.R"
+  ],
+  "text_inputs": [
+    "sur_expr_allmRNA.txt",
+    "dandaixie.txt"
+  ],
+  "other_files": [
+    "module_context.json"
+  ]
+}
