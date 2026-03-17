@@ -93,50 +93,59 @@ SCIWriter/
 ├── README.md
 ├── .gitignore
 └── requirements.txt
-
+```
+---
 ## scripts 目录目前包含的脚本
+```text
+run_pipeline.py
+```
+One-command preprocessing pipeline that runs project scanning, module context generation, evidence extraction, and project-level file generation.
+
+```
 scan_project.py
-
+```
 扫描项目目录，识别模块，并生成 project_scan.json
-
+```
 build_module_context.py
-
+```
 为每个模块生成 module_context.json
-
+```
 build_evidence.py
-
+```
 从结果表中提取关键证据，并生成 evidence.csv
-
+```
 build_project_files.py
-
+```
+---
 生成项目级文件：
-
+```
 project.yaml
-
 storyline.md
-
-当前支持的项目流程
+```
+---
+## 当前支持的项目流程
 
 当前 V1 的基本流程是：
 
-扫描项目目录
+1.扫描项目目录
 
-识别模块
+2.识别模块
 
-生成模块上下文
+3.生成模块上下文
 
-提取证据
+4.提取证据
 
-生成项目级配置和主线
+5.生成项目级配置和主线
 
-调用 Claude 写 Results
+6.调用 Claude 写 Results
 
-示例项目
+7.示例项目
+---
 
-当前仓库中可以放一个示例项目，帮助测试和演示。
+##当前仓库中可以放一个示例项目，帮助测试和演示。
 
 例如：
-
+```
 examples/claude_writing_test/
 ├── 01_DEGs/
 │   ├── diffSig.xls
@@ -147,7 +156,7 @@ examples/claude_writing_test/
     ├── diffSig.xls
     ├── sur_expr_allmRNA.txt
     └── uniCox.txt
-
+```
 这个示例项目当前已经用于测试：
 
 项目扫描
