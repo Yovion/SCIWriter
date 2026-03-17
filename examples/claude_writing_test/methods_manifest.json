@@ -1,0 +1,30 @@
+{
+  "project_name": "claude_writing_test",
+  "project_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test",
+  "results_order": [
+    "01_DEGs",
+    "02_unicox"
+  ],
+  "main_text_modules": [
+    "01_DEGs",
+    "02_unicox"
+  ],
+  "prompts": {
+    "methods_writer": "/mnt/home/dingyy/SCIWriter/prompts/methods_writer.md",
+    "module_rules": "/mnt/home/dingyy/SCIWriter/prompts/module_rules.md"
+  },
+  "modules": [
+    {
+      "module_name": "01_DEGs",
+      "methods_context_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/01_DEGs/methods_context.json",
+      "module_context_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/01_DEGs/module_context.json",
+      "evidence_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/01_DEGs/evidence.csv"
+    },
+    {
+      "module_name": "02_unicox",
+      "methods_context_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/02_unicox/methods_context.json",
+      "module_context_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/02_unicox/module_context.json",
+      "evidence_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/02_unicox/evidence.csv"
+    }
+  ]
+}

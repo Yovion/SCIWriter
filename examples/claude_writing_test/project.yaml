@@ -5,5 +5,5 @@ main_text_modules: &id001
 module_count: 2
 modules: *id001
 project_name: claude_writing_test
-project_path: /mnt/home/dingyy/claude_writing_test
+project_path: /mnt/home/dingyy/SCIWriter/examples/claude_writing_test
 results_order: *id001

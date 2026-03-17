@@ -1,0 +1,22 @@
+{
+  "module_name": "01_DEGs",
+  "module_type": "differential_expression",
+  "inferred_method": "differential expression analysis",
+  "method_source_mode": "code_driven",
+  "available_sources": {
+    "scripts": [
+      "edgeR.R"
+    ],
+    "result_tables": [
+      "diffSig.xls",
+      "evidence.csv"
+    ],
+    "text_inputs": []
+  },
+  "software_candidates": [
+    "edgeR"
+  ],
+  "parameter_candidates": [],
+  "code_matches_results": true,
+  "confidence": "high"
+}

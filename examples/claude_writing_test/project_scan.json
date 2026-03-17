@@ -1,6 +1,6 @@
 {
   "project_name": "claude_writing_test",
-  "project_path": "/mnt/home/dingyy/claude_writing_test",
+  "project_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test",
   "modules": [
     {
       "module_name": "01_DEGs",

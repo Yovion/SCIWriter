@@ -1,0 +1,21 @@
+{
+  "project_name": "claude_writing_test",
+  "project_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test",
+  "detected_route": "prognostic_biomarker_pipeline",
+  "results_order": [
+    "01_DEGs",
+    "02_unicox"
+  ],
+  "main_text_modules": [
+    "01_DEGs",
+    "02_unicox"
+  ],
+  "prompts": {
+    "title_writer": "/mnt/home/dingyy/SCIWriter/prompts/title_writer.md"
+  },
+  "input_files": {
+    "storyline_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/storyline.md",
+    "abstract_draft_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/abstract_draft.md",
+    "results_draft_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/results_draft.md"
+  }
+}

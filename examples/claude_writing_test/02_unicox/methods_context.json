@@ -1,0 +1,26 @@
+{
+  "module_name": "02_unicox",
+  "module_type": "univariate_cox",
+  "inferred_method": "univariate Cox regression analysis",
+  "method_source_mode": "code_driven",
+  "available_sources": {
+    "scripts": [
+      "Autophagy.uniCox.R"
+    ],
+    "result_tables": [
+      "uniCox.txt",
+      "diffSig.xls",
+      "evidence.csv"
+    ],
+    "text_inputs": [
+      "sur_expr_allmRNA.txt",
+      "dandaixie.txt"
+    ]
+  },
+  "software_candidates": [
+    "survival package (Cox regression)"
+  ],
+  "parameter_candidates": [],
+  "code_matches_results": true,
+  "confidence": "high"
+}
