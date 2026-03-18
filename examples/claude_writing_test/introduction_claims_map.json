@@ -1,0 +1,81 @@
+{
+  "map_date": "2026-03-18",
+  "project_name": "claude_writing_test",
+  "disease": "laryngeal cancer",
+  "study_type": "prognostic_biomarker_pipeline",
+  "claims": [
+    {
+      "claim_id": "intro_bg_01",
+      "claim_type": "disease_background",
+      "claim_requirement": "Establish clinical significance of laryngeal cancer, emphasizing prognostic heterogeneity and the need for molecular risk stratification",
+      "paragraph_position": 1,
+      "supporting_pmids": [
+        "39153653",
+        "40239580",
+        "41234877"
+      ],
+      "support_type": "direct",
+      "rationale": "39153653 (review) states 'significant global health concern, poor prognosis for advanced-stage disease'; 40239580 states 'Late-stage cancers associated with greater morbidity and poorer survival'; 41234877 states 'prevalent and aggressive... poor prognosis... high incidence and significant mortality'",
+      "confidence": "high"
+    },
+    {
+      "claim_id": "intro_bg_02",
+      "claim_type": "research_status",
+      "claim_requirement": "Describe transcriptomic approaches for prognostic biomarker identification, focusing on DEG screening and survival modeling methods",
+      "paragraph_position": 2,
+      "supporting_pmids": [
+        "35910213",
+        "40239580"
+      ],
+      "support_type": "direct",
+      "rationale": "35910213 demonstrates DEG identification + Cox regression for prognostic signature; 40239580 shows transcriptomic analysis for stage progression and survival markers",
+      "confidence": "high"
+    },
+    {
+      "claim_id": "intro_method_01",
+      "claim_type": "study_objective",
+      "claim_requirement": "State study objective: systematic identification of prognostic biomarkers via DEG analysis + univariate Cox regression",
+      "paragraph_position": 3,
+      "supporting_pmids": [],
+      "support_type": "self_description",
+      "rationale": "Describes our own study design, no external citation needed",
+      "confidence": "n/a"
+    }
+  ],
+  "coverage_summary": {
+    "total_claims": 3,
+    "claims_with_literature_support": 2,
+    "claims_self_description": 1,
+    "unique_pmids_used": 4
+  },
+  "tag_optimization_notes": {
+    "downgraded_refs": [
+      {
+        "pmid": "40229748",
+        "reason": "Too mechanism-specific (m6A-ferroptosis pathway, TFRC/RGS4/FTH1), not suitable for general background"
+      },
+      {
+        "pmid": "39085122",
+        "reason": "Pure mechanism study (HOXA1-AKT/mTOR), not suitable for any background claim"
+      },
+      {
+        "pmid": "39893643",
+        "reason": "Pure mechanism study (CTSL-IL6-JAK-STAT3), not suitable for any background claim"
+      }
+    ],
+    "upgraded_refs": [
+      {
+        "pmid": "39153653",
+        "reason": "Review with strong disease burden statement, suitable for paragraph 1"
+      },
+      {
+        "pmid": "40239580",
+        "reason": "Clinical progression study with disease burden context, suitable for paragraph 1 and 2"
+      },
+      {
+        "pmid": "41234877",
+        "reason": "Strong disease burden statement in abstract, suitable for paragraph 1"
+      }
+    ]
+  }
+}

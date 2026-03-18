@@ -1,0 +1,20 @@
+project_name: example_project
+
+disease:
+  name: your disease name
+  abbreviation: optional
+
+study_focus:
+  main_theme: prognostic biomarker screening
+  biological_focus: null
+  keyword_focus: []
+
+manual_notes:
+  important_background: []
+  avoid_overstatement: []
+  preferred_emphasis: []
+
+writing_preferences:
+  mention_disease_explicitly: true
+  mention_biological_focus_only_if_used: true
+  preferred_title_style: standard_academic

@@ -1,10 +1,10 @@
 # Title Candidates
 
 ## Title 1
-Identification of Prognostic Biomarkers through Differential Expression Analysis and Univariate Cox Regression in Cancer
+Identification of Prognostic Biomarkers in Laryngeal Cancer Through Differential Expression and Cox Regression Analysis
 
 ## Title 2
-Systematic Transcriptomic Screening Identifies Candidate Prognostic Genes Associated with Patient Survival Outcomes
+Transcriptomic Screening of Differentially Expressed Genes as Prognostic Biomarkers in Laryngeal Cancer
 
 ## Title 3
-Integrative Analysis of Differentially Expressed Genes Reveals Prognostic Biomarkers through Cox Regression Modeling
+Systematic Identification of DEG-Based Prognostic Biomarkers in Laryngeal Cancer Using Survival Analysis

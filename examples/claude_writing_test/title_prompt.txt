@@ -2,9 +2,10 @@
 
 1. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/project.yaml
 2. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/storyline.md
-3. /mnt/home/dingyy/SCIWriter/prompts/title_writer.md
+3. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/project_brief_resolved.json
 4. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/abstract_draft.md
 5. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/results_draft.md
+6. /mnt/home/dingyy/SCIWriter/prompts/title_writer.md
 
 然后生成 3 个 SCI 风格的英文标题候选，要求：
 1. 用英文
@@ -18,5 +19,10 @@
 9. 风格适合生物信息学/转录组生物标志物研究
 10. 标题长度适中（10-20 个单词）
 11. 基于项目的 detected_route: prognostic_biomarker_pipeline
-12. 保存到：
+12. 如果 project_brief_resolved.json 中提供了 disease.name，则标题应优先明确反映疾病对象
+13. 如果 project_brief_resolved.json 中提供了 study_focus.main_theme，则标题应优先体现研究主线
+14. 如果 manual_notes.avoid_overstatement 中有内容，标题不得违反这些限制
+15. 如果 manual_notes.preferred_emphasis 中有内容，标题应尽量体现这些重点
+
+保存到：
 /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/title_candidates.md

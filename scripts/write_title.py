@@ -36,6 +36,11 @@ def check_prerequisites(project_path, prompts_dir):
     if not check_file_exists(results_draft, "results_draft.md"):
         errors.append(f"Missing: {results_draft}")
 
+    # Check optional project_brief_resolved.json
+    project_brief = project_path / "project_brief_resolved.json"
+    if project_brief.exists():
+        check_file_exists(project_brief, "project_brief_resolved.json (optional)")
+
     # Check prompt template
     print("\nChecking prompt template...")
     title_writer = prompts_dir / "title_writer.md"
@@ -74,6 +79,11 @@ def generate_manifest(project_path, prompts_dir):
         }
     }
 
+    # Add project_brief_resolved_path as top-level field if it exists
+    project_brief_path = project_path / "project_brief_resolved.json"
+    if project_brief_path.exists():
+        manifest["project_brief_resolved_path"] = str(project_brief_path)
+
     return manifest
 
 
@@ -82,13 +92,30 @@ def generate_prompt(project_path, manifest):
     project_name = manifest["project_name"]
     detected_route = manifest["detected_route"]
 
+    # Build file reading order: project.yaml -> storyline.md -> [project_brief_resolved.json] -> abstract_draft.md -> results_draft.md
+    file_list = [
+        f"1. {project_path}/project.yaml",
+        f"2. {manifest['input_files']['storyline_path']}"
+    ]
+
+    file_index = 3
+
+    # Add project_brief_resolved.json if it exists (after storyline, before abstract)
+    has_project_brief = "project_brief_resolved_path" in manifest
+    if has_project_brief:
+        file_list.append(f"{file_index}. {manifest['project_brief_resolved_path']}")
+        file_index += 1
+
+    # Add remaining files in original order
+    file_list.extend([
+        f"{file_index}. {manifest['input_files']['abstract_draft_path']}",
+        f"{file_index + 1}. {manifest['input_files']['results_draft_path']}",
+        f"{file_index + 2}. {manifest['prompts']['title_writer']}"
+    ])
+
     prompt = f"""请按以下顺序读取文件：
 
-1. {project_path}/project.yaml
-2. {manifest["input_files"]["storyline_path"]}
-3. {manifest["prompts"]["title_writer"]}
-4. {manifest["input_files"]["abstract_draft_path"]}
-5. {manifest["input_files"]["results_draft_path"]}
+{chr(10).join(file_list)}
 
 然后生成 3 个 SCI 风格的英文标题候选，要求：
 1. 用英文
@@ -102,7 +129,18 @@ def generate_prompt(project_path, manifest):
 9. 风格适合生物信息学/转录组生物标志物研究
 10. 标题长度适中（10-20 个单词）
 11. 基于项目的 detected_route: {detected_route}
-12. 保存到：
+"""
+
+    # Add project_brief_resolved.json specific requirements if it exists
+    if has_project_brief:
+        prompt += """12. 如果 project_brief_resolved.json 中提供了 disease.name，则标题应优先明确反映疾病对象
+13. 如果 project_brief_resolved.json 中提供了 study_focus.main_theme，则标题应优先体现研究主线
+14. 如果 manual_notes.avoid_overstatement 中有内容，标题不得违反这些限制
+15. 如果 manual_notes.preferred_emphasis 中有内容，标题应尽量体现这些重点
+"""
+
+    prompt += f"""
+保存到：
 {project_path}/title_candidates.md
 """
 

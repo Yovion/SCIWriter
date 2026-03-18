@@ -1,0 +1,412 @@
+{
+  "query_date": "2026-03-18",
+  "queries": [
+    "(laryngeal cancer[Title/Abstract]) AND (prognostic biomarker[Title/Abstract] OR prognosis[Title/Abstract]) AND (gene expression[Title/Abstract] OR transcriptome[Title/Abstract])",
+    "(laryngeal cancer[Title/Abstract]) AND (differential expression[Title/Abstract] OR differentially expressed genes[Title/Abstract]) AND (survival[Title/Abstract] OR prognosis[Title/Abstract])",
+    "(laryngeal cancer[Title/Abstract]) AND (Cox regression[Title/Abstract] OR survival analysis[Title/Abstract]) AND (biomarker[Title/Abstract])"
+  ],
+  "total_results": 29,
+  "articles": [
+    {
+      "pmid": "40792153",
+      "title": "A novel fumaric acid metabolism-related prognostic signature associated with prognosis and immune infiltration landscape in laryngeal squamous cell carcinoma.",
+      "authors": [
+        "Feng Z",
+        "Yang Y",
+        "Li J",
+        "et al."
+      ],
+      "journal": "Transl Cancer Res",
+      "year": "2025",
+      "doi": "10.21037/tcr-2025-29",
+      "abstract": "Laryngeal squamous cell carcinoma (LSCC) is an aggressive malignant tumor, characterized by high incidence and mortality. Metabolic pathways within cancer cells are frequently dysregulated; thus, exploring fumaric acid metabolism-related genes (FAMRGs) appears interesting. We aimed to identify a signature prognostic genetic profile to develop tailored management strategies for patients with LSCC."
+    },
+    {
+      "pmid": "26048190",
+      "title": "Annexin A4 and cancer.",
+      "authors": [
+        "Wei B",
+        "Guo C",
+        "Liu S",
+        "et al."
+      ],
+      "journal": "Clin Chim Acta",
+      "year": "2015",
+      "doi": "10.1016/j.cca.2015.05.016",
+      "abstract": "Annexin A4 (Anxa4) is one of the Ca(2+)-regulated and phospholipid-binding annexin superfamily proteins. Anxa4 has a potential role in diagnosis, prognosis, and treatment of certain cancers. Studies indicate that Anxa4 up-regulation promotes the progression of tumor and chemoresistance of colorectal cancer (CRC), esophageal squamous cell carcinoma (ESCC), endometrial carcinoma (EC), gastric cancer (GC), chemoresistant lung cancer (LC), malignant mesothelioma (MM), renal cell carcinoma (RCC), ovarian clear cell carcinoma (OCCC), cholangiocarcinoma, hepatocellular carcinoma (HCC), breast cancer (BC), and laryngeal cancer. Interestingly, Anxa4 also might specifically function as a tumor suppressor for prostate cancer (PCa) and have a paradoxical role for pancreatic cancer (PCC). Differential expression of Anxa4 may distinguish major salivary gland tumor (MSGT) from thyroid cancer. In addition, its differential expression was linked to Sirt1-induced cisplatin resistance of oral squamous cell carcinoma (OSCC) and miR-7-induced migration and invasion inhibition of glioma. This current review summarizes and discusses the clinical significance of Anxa4 in cancer as well as its potential mechanisms of action. It may provide new integrative understanding for future studies on the exact role of Anxa4 in cancer."
+    },
+    {
+      "pmid": "29771033",
+      "title": "[The effects and expression of Survivin and Aurora-b in laryngeal carcinoma].",
+      "authors": [
+        "Hu CH",
+        "Wang WH",
+        "Wang Q",
+        "et al."
+      ],
+      "journal": "Lin Chuang Er Bi Yan Hou Tou Jing Wai Ke Za Zhi",
+      "year": "2017",
+      "doi": "10.13201/j.issn.1001-1781.2017.10.001",
+      "abstract": "N/A"
+    },
+    {
+      "pmid": "39085122",
+      "title": "HOXA1 Promotes Migration, Invasion and Cell Cycle, and Suppresses Cisplatin Sensitivity of Laryngeal Cancer Cells By Mediating AKT/mTOR Pathway.",
+      "authors": [
+        "Luo S",
+        "Bai Y",
+        "Wang B",
+        "et al."
+      ],
+      "journal": "Tohoku J Exp Med",
+      "year": "2025",
+      "doi": "10.1620/tjem.2024.J073",
+      "abstract": "Homeobox A1 (HOXA1) is implicated in the progression of various cancers, but its biological function in laryngeal cancer (LC) remains undefined, which is the foothold of our study. Bioinformatics analysis and survival analysis were performed to predict HOXA1 expression in LC tissues, and the prognostic relationship between high HOXA1 expression and LC. Whether high HOXA1 expression correlated with the clinical characteristics and prognosis of LC patients was analyzed. LC cell viability and sensitivity to cisplatin were determined by Methyl thiazolyl tetrazolium assay. The cell migration, invasion, and cell cycle after transfection were examined by Wound healing, Transwell, and flow cytometry assays, respectively. The corresponding mRNA and protein expressions were measured by quantitative real-time PCR or Western blot. A higher expression of HOXA1 was detected in LC tissues, which was found to be relevant to poor prognosis of LC patients. The association of high expression of HOXA1 with lymph node and clinical stage was also confirmed. Silencing of HOXA1 in LC cells enhanced the cell sensitivity to cisplatin, inhibited viability, migration, invasion and cell cycle, and reduced N-Cadherin, Vimentin, PCNA, p-AKT and p-mTOR expressions, while overexpression of HOXA1 had the opposite effects. Collectively, HOXA1 boosts migration, invasion and cell cycle, while suppressing cisplatin sensitivity of LC cells by mediating AKT/mTOR pathway, hinting that HOXA1 is a promising biomarker for diagnosis and prognosis of LC in clinical practice."
+    },
+    {
+      "pmid": "40239580",
+      "title": "Molecular features of T and N stage progression in laryngeal cancer.",
+      "authors": [
+        "Li N",
+        "Zeng PYF",
+        "Kim HAJ",
+        "et al."
+      ],
+      "journal": "Oral Oncol",
+      "year": "2025",
+      "doi": "10.1016/j.oraloncology.2025.107283",
+      "abstract": "Laryngeal squamous cell cancer (LSCC) is a common type of head and neck cancer that is typically unrelated to human papilloma virus (HPV) infection. Late-stage laryngeal cancers are associated with greater morbidity due to obstructive symptoms, and poorer overall survival. Using data from The Cancer Genome Atlas (TCGA), we analyzed 112 patient LSCC samples, comparing patient proteome, transcriptome and genome between early and late T and N samples. We observed significant differences in SNV frequency for various genes between the early and late-stage groups. Most notably we observed that NOTCH1 mutation, which was more frequent in late N-stage supraglottic cancers, was also associated with poorer patient survival in LSCCs. Methylation analysis also revealed changes in JUN gene methylation in late N glottic cancers. Transcriptomic analysis revealed differential expression in c-JUN, HOXB7 and HOXB9 transcript levels, suggesting potential involvement of these pathways in progression and nodal involvement. Our findings illustrate that LSCC undergoes distinct molecular changes associated with different stages and subsites. We observed multiple potential markers for progression, metastases and survival, including NOTCH1 mutation, which may aid as prognostic indicators in future studies."
+    },
+    {
+      "pmid": "34570775",
+      "title": "Low expression of CIP4 in predicting worse overall survival: A potential biomarker for laryngeal cancer.",
+      "authors": [
+        "Fang L",
+        "Shi L",
+        "Wang W",
+        "et al."
+      ],
+      "journal": "PLoS One",
+      "year": "2021",
+      "doi": "10.1371/journal.pone.0253545",
+      "abstract": "Previous reports indicate that Cdc42-interacting protein-4 (CIP4) has previously been reported to plays an important role in the progression of various cancers. However, its correlation with laryngeal cancer (LC) remains unreported. Data from TCGA and GEO databases were used to evaluate the role of CIP4 in LC. Based on GEO and TCGA datasets, we analyzed the differences in CIP4 expression between normal and tumor samples. The Wilcoxon signed-rank test was used to analyze the relationship between clinical features and CIP4. Cox regression and the Kaplan-Meier analyses were used to identify the clinical characteristics associated with the overall survival. Also, the GEPIA database was used to confirm the relationship between CIP4 and overall survival. Lastly, Gene Set Enrichment Analysis (GSEA) was performed based on the TCGA dataset. CIP4 expression in LC was significantly associated with gender and tumor stage (p-values<0.05). Similar to GEPIA validation, Kaplan-Meier survival analysis demonstrated that LC with CIP4-low exhibited a worse prognosis than that with CIP4-high. Univariate analysis revealed that CIP4-high significantly correlated with better overall survival (HR: 0.522, 95% CI: 0.293-0.830, P = 0.026). Besides, multivariate analysis revealed that CIP4 remained independently associated with the overall survival (HR: 0.61, 95% CI: 0.326-0.912, P = 0.012). GSEA showed that the p53, WNT signaling, TGF-β signaling pathways, etc. were enriched in a phenotype high CIP4 expression. In summary, the CIP4 gene is a potential prognostic molecular marker for patients diagnosed with laryngeal cancer. Moreover, the p53, WNT signaling, and TGF-β signaling pathways are potentially associated with CIP4 in LC."
+    },
+    {
+      "pmid": "33108563",
+      "title": "Development and validation of a novel metabolic signature for predicting prognosis in patients with laryngeal cancer.",
+      "authors": [
+        "Li W",
+        "Fu M",
+        "Zhao K",
+        "et al."
+      ],
+      "journal": "Eur Arch Otorhinolaryngol",
+      "year": "2021",
+      "doi": "10.1007/s00405-020-06444-3",
+      "abstract": "Despite advances in the development of treatments for laryngeal cancer (LC), including surgical treatments and radio-chemotherapy, the survival rate of LC remains low. Therefore, novel metabolic signatures are urgently needed to evaluate the prognosis of LC patients."
+    },
+    {
+      "pmid": "33147419",
+      "title": "Identification of prognostic immune genes in laryngeal cancer.",
+      "authors": [
+        "Xiao H",
+        "Su QS",
+        "Li CQ"
+      ],
+      "journal": "J Int Med Res",
+      "year": "2020",
+      "doi": "10.1177/0300060520964662",
+      "abstract": "In this study, we aimed to identify prognostic immune-related genes and establish a prognostic model for laryngeal cancer based on these genes."
+    },
+    {
+      "pmid": "39452555",
+      "title": "Personalized Treatment Strategies via Integration of Gene Expression Biomarkers in Molecular Profiling of Laryngeal Cancer.",
+      "authors": [
+        "Maniaci A",
+        "Giurdanella G",
+        "Chiesa Estomba C",
+        "et al."
+      ],
+      "journal": "J Pers Med",
+      "year": "2024",
+      "doi": "10.3390/jpm14101048",
+      "abstract": "Laryngeal cancer poses a substantial challenge in head and neck oncology, and there is a growing focus on customized medicine techniques. The present state of gene expression indicators in laryngeal cancer and their potential to inform tailored therapy choices are thoroughly examined in this review. We examine significant molecular changes, such as TP53, CDKN2A, PIK3CA, and NOTCH1 mutations, which have been identified as important participants in the development of laryngeal cancer. The study investigates the predictive and prognostic significance of these genetic markers in addition to the function of epigenetic changes such as the methylation of the MGMT promoter. We also go over the importance of cancer stem cell-related gene expression patterns, specifically CD44 and ALDH1A1 expression, in therapy resistance and disease progression. The review focuses on indicators, including PD-L1, CTLA-4, and tumor mutational burden (TMB) in predicting immunotherapy responses, highlighting recent developments in our understanding of the intricate interactions between tumor genetics and the immune milieu. We also investigate the potential for improving prognosis accuracy and treatment selection by the integration of multi-gene expression panels with clinicopathological variables. The necessity for uniform testing and interpretation techniques is one of the difficulties, in implementing these molecular insights into clinical practice, that are discussed. This review seeks to provide a comprehensive framework for promoting personalized cancer therapy by combining the most recent data on gene expression profiling in laryngeal cancer. Molecularly guided treatment options may enhance patient outcomes."
+    },
+    {
+      "pmid": "27809638",
+      "title": "A recurrence model for laryngeal cancer based on SVM and gene function clustering.",
+      "authors": [
+        "Su J",
+        "Zhang Y",
+        "Su H",
+        "et al."
+      ],
+      "journal": "Acta Otolaryngol",
+      "year": "2017",
+      "doi": "10.1080/00016489.2016.1247984",
+      "abstract": "A prognostic model was obtained for LC. Several critical genes were unveiled. They could be potentially applied for LC recurrence prediction."
+    },
+    {
+      "pmid": "26079642",
+      "title": "The role of microRNAs expression in laryngeal cancer.",
+      "authors": [
+        "Yu X",
+        "Li Z"
+      ],
+      "journal": "Oncotarget",
+      "year": "2015",
+      "doi": "10.18632/oncotarget.4195",
+      "abstract": "MicroRNAs (miRs, miRs) is a class of small non-coding RNAs, which posttranscriptionally regulate gene expression. Deregulated miRs are frequently obseved in patients with laryngeal cancer. In addition, numerous studies have showed miRs play significant roles in the pathogenesis of laryngeal cancer through regulating tumor cell proliferation, metastasis, invasion and apoptosis. miR can play either an oncogenic or tumor suppressive role in laryngeal cancer. In our review, we summarize the recent researches on laryngeal cancer-associated miRs, focusing on their role in the pathogenesis of laryngeal cancer. As changes in the levels of specific miRs in tissues or serum associate with diagnosis and prognosis of patients, we will also discuss the potential use of miRs in laryngeal cancer diagnosis and prognosis. Furthermore, supplementation of oncomiRs or inhibition of tumor suppressive miRs in vivo may be future therapeutic strategy for laryngeal cancer."
+    },
+    {
+      "pmid": "35910213",
+      "title": "Smoking patients with laryngeal cancer screened with a novel immunogenomics-based prognostic signature.",
+      "authors": [
+        "Shen Y",
+        "Zhou H",
+        "Dong S",
+        "et al."
+      ],
+      "journal": "Front Genet",
+      "year": "2022",
+      "doi": "10.3389/fgene.2022.961764",
+      "abstract": "The immune system greatly affects the prognosis of various malignancies. Studies on differentially expressed immune-related genes (IRGs) in the immune microenvironment of laryngeal squamous cell carcinoma (LSCC) have rarely been reported. In this paper, the prognostic potentials of IRGs were explored in LSCC patients with smoking use. The RNA-seq data containing IRGs and corresponding clinical information of smoking LSCC patients was obtained from The Cancer Genome Atlas (TCGA). Differentially expressed IRGs were identified and functional enrichment analysis was used to reveal the pathway of IRGs. Then, IRGs with prognostic potentials in smoking LSCC patients were screened out by univariate Cox regression analysis. Finally, multivariate Cox regression analysis was conducted to assess the prognostic signature of 5 IRGs after adjustment of clinical factors and patients were classified into two subgroups based on different IRGs expression. The prognostic capacity of the model was verified by another independent cohort from Gene Expression Omnibus (GEO) database. Nomogram including the prognostic signature was established and shown some clinical net benefit. These findings may contribute to the development of potential therapeutic targets and biomarkers for the new-immunotherapy of LSCC patients with smoking use."
+    },
+    {
+      "pmid": "41234877",
+      "title": "Integrative analysis identified THBS1 as a key prognostic biomarker with therapeutic vulnerability in patients with laryngeal cancer.",
+      "authors": [
+        "Huang S",
+        "Shan X",
+        "Song F",
+        "et al."
+      ],
+      "journal": "Transl Cancer Res",
+      "year": "2025",
+      "doi": "10.21037/tcr-2025-779",
+      "abstract": "Laryngeal cancer is a prevalent and aggressive type of head and neck malignancy that often presents with a poor prognosis. Its high incidence and significant mortality rate pose a substantial challenge in clinical management, but the prognostic biomarkers and the mechanisms of progression are poorly understood. We sought to identify the prognostic biomarkers and their effects in the progression of laryngeal cancer."
+    },
+    {
+      "pmid": "29048627",
+      "title": "SLC7A11, a component of cysteine/glutamate transporter, is a novel biomarker for the diagnosis and prognosis in laryngeal squamous cell carcinoma.",
+      "authors": [
+        "Ma Z",
+        "Zhang H",
+        "Lian M",
+        "et al."
+      ],
+      "journal": "Oncol Rep",
+      "year": "2017",
+      "doi": "10.3892/or.2017.5976",
+      "abstract": "Solute carrier family 7, membrane 11 (SLC7A11) or (xCT) is a component of the cysteine-glutamate transporter, which plays a critical role in glutathione homeostasis which is important to protect cells from oxidative stress. SLC7A11 is distributed in various tissues and participates in the occurrence of a number of diseases, particularly in the pathogenesis of malignant tumors, but its role in laryngeal cancer development has not yet been clearly defined. The objective of the present study was to investigate the role of SLC7A11 in laryngeal squamous cell carcinoma (LSCC). We conducted immunohistochemistry and RT-PCR to evaluate the protein and mRNA levels of SLC7A11 in LSCC and in control tissues, respectively. The knockdown experiments were conducted with SLC7A11 short hairpin RNA (shRNA) lentivirus, and the protein and mRNA levels of SLC7A11 were assessed by RT-PCR and western blotting. The functional study of SLC7A11 in vitro was conducted by MTT assay, and the effects on the cell cycle were detected using flow cytometry. Immunohistochemical results revealed that the expression levels of SLC7A11, Ki-67 and p53 in LSCC tissues were higher than those in laryngeal dysplasia tissues. The Spearman rank correlation analysis revealed that the expression of SLC7A11 was positively correlated with the expression of p53 and Ki-67. Cox regression analysis and Kaplan-Meier plots confirmed that the expression levels of SLC7A11 were a prognostic factor for overall survival (OS) rates and postoperative recurrence of LSCC. Moreover, the functional study of SLC7A11 in vitro revealed that knockdown of SLC7A11 using shRNA inhibited cell proliferation by inducing cell cycle arrest at the G1 phase. Immunohistochemical and RT-PCR results and knockdown experiments of SLC7A11 revealed that SLC7A11 was involved in the progression of LSCC, and may provide clinical information for the evaluation of OS rates and postoperative recurrence of LSCC. Collectively, these observations suggest that SLC7A11 may be a vital biomarker for the diagnosis and prognosis in human LSCC, and targeting SLC7A11 appears to be a potentially significant method for LSCC treatment."
+    },
+    {
+      "pmid": "40598798",
+      "title": "Prognostic prediction of laryngeal cancer patients based on nitrogen metabolism-related genes.",
+      "authors": [
+        "Wang Y",
+        "Shen T",
+        "Wang Y"
+      ],
+      "journal": "Comput Methods Biomech Biomed Engin",
+      "year": "2025",
+      "doi": "10.1080/10255842.2025.2523309",
+      "abstract": "Nitrogen metabolism plays a crucial role in cancer progression. This study aimed to construct a prognostic model using nitrogen metabolism-related genes (NMRGs) for laryngeal cancer (LC)."
+    },
+    {
+      "pmid": "40642601",
+      "title": "Histone lactylation: A new frontier in laryngeal cancer research (Review).",
+      "authors": [
+        "Tong Q",
+        "Huang C",
+        "Tong Q",
+        "et al."
+      ],
+      "journal": "Oncol Lett",
+      "year": "2025",
+      "doi": "10.3892/ol.2025.15167",
+      "abstract": "Laryngeal cancer is a common malignant tumor of the head and neck, and its occurrence and development are closely related to epigenetic modifications. Histone lactylation, a novel form of epigenetic modification, regulates gene expression and is involved in processes such as tumor metabolic reprogramming, shaping the tumor microenvironment, maintaining tumor stem cell characteristics and developing treatment resistance. The present review highlighted the molecular mechanisms and detection methods of histone lactylation and explores its potential role in laryngeal cancer, as it may serve as a valuable biomarker for diagnosis and prognosis. Furthermore, targeting the lactylation pathway may provide novel therapeutic strategies, with the potential to improve treatment outcomes for patients. Overall, understanding the role of histone lactylation in laryngeal cancer may potentially lead to innovative diagnostic and therapeutic approaches and improve the management of laryngeal cancer in the future."
+    },
+    {
+      "pmid": "39893643",
+      "title": "CTSL Promotes Autophagy in Laryngeal Cancer Through the IL6-JAK-STAT3 Signalling Pathway.",
+      "authors": [
+        "Wang X",
+        "Wang J",
+        "Wang L",
+        "et al."
+      ],
+      "journal": "J Cell Mol Med",
+      "year": "2025",
+      "doi": "10.1111/jcmm.70364",
+      "abstract": "Cathepsin L (CTSL) is an important oncogene. However, its mechanism of action in laryngeal cancer is still unclear. This study aims to explore the role of CTSL in laryngeal cancer and its clinical significance. Conducting bioinformatics analysis utilising the Cancer Genome Atlas (TCGA) database and the Gene Expression Omnibus (GEO) database. Performing CCK8 analysis, Western blotting, qRT-PCR, wound healing assay and transwell invasion assay. Additionally, conducting immunoprecipitation experiments and immunohistochemical staining to investigate the impact of CTSL on cell proliferation, autophagy and related signalling pathways. We observed a significant upregulation of CTSL in laryngeal cancer tissues, and its elevated levels are indicative of poor prognosis in laryngeal cancer patients. The proliferation of laryngeal cancer cells relies on the expression of CTSL, with overexpression of this gene enhancing the proliferative capacity of these cells. Concurrently, CTSL is closely associated with the autophagic levels in laryngeal cancer cells. During the autophagic process mediated by CTSL, the IL6-JAK-STAT3 signalling pathway is activated, suggesting that CTSL promotes autophagy through the IL6-JAK-STAT3 pathway. Considering the correlation between CTSL and autophagy, we developed and validated a multi-gene signature. The risk score derived from this signature demonstrates significant potential in predicting various aspects. We found that CTSL upregulates autophagy in laryngeal cancer cells by activating the IL6-JAK-STAT3 signalling pathway. By taking into account the autophagy-regulating role of CTSL, the clinical predictive ability of CTSL in HNSC can be enhanced."
+    },
+    {
+      "pmid": "35829804",
+      "title": "Potential ferroptosis-related diagnostic and prognostic biomarkers in laryngeal cancer.",
+      "authors": [
+        "Ji Z",
+        "Fang Z",
+        "Dong X",
+        "et al."
+      ],
+      "journal": "Eur Arch Otorhinolaryngol",
+      "year": "2022",
+      "doi": "10.1007/s00405-022-07433-4",
+      "abstract": "Laryngeal cancer (LC) is a common malignant tumor of the head and neck. However, the relationship between ferroptosis and LC is still unclear. The aim of this study was to identify potential ferroptosis-related biomarkers for diagnosis and prognosis in LC."
+    },
+    {
+      "pmid": "23226807",
+      "title": "Detection of differentially expressed genes and association with clinicopathological features in laryngeal squamous cell carcinoma.",
+      "authors": [
+        "Ni RS",
+        "Shen X",
+        "Qian X",
+        "et al."
+      ],
+      "journal": "Oncol Lett",
+      "year": "2012",
+      "doi": "10.3892/ol.2012.920",
+      "abstract": "Head and neck cancer is a significant health problem worldwide. Early detection and prediction of prognosis will improve patient survival and quality of life. The aim of this study was to identify genes differentially expressed between laryngeal cancer and the corresponding normal tissues as potential biomarkers. A total of 36 patients with laryngeal squamous cell carcinoma were recruited. Four of these cases were randomly selected for cDNA microarray analysis of the entire genome. Using semi-quantitative RT-PCR and western blot analysis, the differential expression of genes and their protein products, respectively, between laryngeal cancer tissues and corresponding adjacent normal tissues was verified in the remaining 32 cases. The expression levels of these genes and proteins were investigated for associations with clinicopathological parameters taken from patient data. The cDNA microarray analysis identified 349 differentially expressed genes between tumor and normal tissues, 112 of which were upregulated and 237 were downregulated in tumors. Seven genes and their protein products were then selected for validation using RT-PCR and western blot analysis, respectively. The data demonstrated that the expression of SENP1, CD109, CKS2, LAMA3, ITGAV and ITGB8 was increased, while LAMA2 was downregulated in laryngeal cancer compared with the corresponding normal tissues. Associations between the expression of these genes and clinicopathological data from the patients were also established, including age, tumor classification, stage, differentiation and lymph node metastasis. Our current study provides the first evidence that these seven genes may be differentially expressed in laryngeal squamous cell carcinoma and also associated with clinicopathological data. Future study is required to further confirm whether detection of their expression can be used as biomarkers for prediction of patient survival or potential treatment targets."
+    },
+    {
+      "pmid": "33850881",
+      "title": "Downregulation of circ-RANBP9 in laryngeal cancer and its clinical significance.",
+      "authors": [
+        "Wang Z",
+        "Gu J",
+        "Yan A",
+        "et al."
+      ],
+      "journal": "Ann Transl Med",
+      "year": "2021",
+      "doi": "10.21037/atm-21-567",
+      "abstract": "Laryngeal cancer (LC) is a common malignant tumor of the head and neck. As circular RNAs (circRNAs) and other non-coding RNAs are involved in various malignant processes, we analyzed circRNAs to better understand LC and explored specific tumor markers."
+    },
+    {
+      "pmid": "38228050",
+      "title": "Effective prognostic risk model with cuproptosis-related genes in laryngeal cancer.",
+      "authors": [
+        "Li C",
+        "Zhu Y",
+        "Shi S"
+      ],
+      "journal": "Braz J Otorhinolaryngol",
+      "year": "2024",
+      "doi": "10.1016/j.bjorl.2023.101384",
+      "abstract": "Laryngeal cancer, characterized by high recurrence rates and a lack of effective biomarkers, has been associated with cuproptosis, a regulated cell death process linked to cancer progression. In this study, we aimed to explore the roles of cuproptosis-related genes in laryngeal cancer and their potential as prognostic markers and therapeutic targets."
+    },
+    {
+      "pmid": "40183093",
+      "title": "A novel ubiquitin-related genes-based signature demonstrated values in prognostic prediction, immune landscape sculpture and therapeutic options in laryngeal cancer.",
+      "authors": [
+        "Liu L",
+        "Wang B",
+        "Ma X",
+        "et al."
+      ],
+      "journal": "Front Pharmacol",
+      "year": "2025",
+      "doi": "10.3389/fphar.2025.1513948",
+      "abstract": "Laryngeal cancer (LC) is characterized by high mortality and remains challenging in prognostic evaluation and treatment benefits. Ubiquitin-related genes (UbRGs) are widely involved in cancer initiation and progression, but their potential value in LC is unknown."
+    },
+    {
+      "pmid": "38031942",
+      "title": "CRM1 expression: association with high prognostic value in laryngeal cancer.",
+      "authors": [
+        "Özdaş T",
+        "Özdaş S",
+        "Canatar İ",
+        "et al."
+      ],
+      "journal": "Turk J Med Sci",
+      "year": "2023",
+      "doi": "10.55730/1300-0144.5655",
+      "abstract": "Laryngeal cancer is a very common malignant tumor of the head and neck. While laryngeal cancer does not show any obvious early symptoms, it tends to have a poor prognosis in advanced clinical stages. Chromosome region maintenance 1 (CRM1) mediates the nuclear export of some RNAs, major and tumor suppressor proteins and has been associated with the pathogenesis of many tumors. However, the clinicopathological significance of CRM1 gene expression in laryngeal cancer has not been clarified yet. Therefore, this study aims to detect the expression of CRM1 in laryngeal cancer and to investigate its relationship with clinicopathological parameters and prognosis."
+    },
+    {
+      "pmid": "26395262",
+      "title": "Tumor necrosis factor superfamily member 13 is a novel biomarker for diagnosis and prognosis and promotes cancer cell proliferation in laryngeal squamous cell carcinoma.",
+      "authors": [
+        "Wang R",
+        "Guo Y",
+        "Ma H",
+        "et al."
+      ],
+      "journal": "Tumour Biol",
+      "year": "2016",
+      "doi": "10.1007/s13277-015-4016-8",
+      "abstract": "Tumor necrosis factor superfamily member 13 (TNFSF13) modulates cell proliferation and apoptosis and participates in the pathogenesis of solid tumors, but its role in laryngeal cancer development is not clearly defined. In order to investigate whether TNFSF13 can be used as a biomarker for diagnosis and prognosis in laryngeal squamous cell carcinoma (LSCC) and the role of TNFSF13 in laryngeal cancer carcinogenesis, we conducted immunohistochemistry and ELISA assays to evaluate the expression level of TNFSF13 in laryngeal cancer patients and the contrast. We also conducted experiments on the functional study of TNFSF13 in vitro. We found that the expression levels of TNFSF13, ki-67, and NF-κB p65 in LSCC tumor tissues were higher than those in vocal polyp and para-carcinoma tissues. The Spearman rank correlation analysis showed that the expression of TNFSF13 had a positive correlation with the expression of ki-67 and NF-κB p65. Cox regression analysis and Kaplan-Meier plots confirmed the expression level of TNFSF13 was a prognostic factor for LSCC. Moreover, the serum TNFSF13 level was significantly higher in LSCC patients than in the controls, and the serum expression level of TNFSF13 can distinguish LSCC from healthy people, precancerosis, or laryngeal benign tumor. In addition, functional study of TNFSF13 in vitro revealed that knockdown of TNFSF13 inhibited cell proliferation by inducing G1 phase cell cycle arrest in Hep-2 cells. In conclusion, TNFSF13 may be a potential novel molecular target for diagnosis and prognosis in human LSCC, and therapies that target TNFSF13 may have clinical significance for the treatment of LSCC."
+    },
+    {
+      "pmid": "37064100",
+      "title": "CT radiomics nomogram predicts pathological response after induced chemotherapy and overall survival in patients with advanced laryngeal cancer: A single-center retrospective study.",
+      "authors": [
+        "Kang C",
+        "Sun P",
+        "Yang R",
+        "et al."
+      ],
+      "journal": "Front Oncol",
+      "year": "2023",
+      "doi": "10.3389/fonc.2023.1094768",
+      "abstract": "This study aimed to develop a radiomics nomogram to predict pathological response (PR) after induction chemotherapy (IC) and overall survival (OS) in patients with advanced laryngeal cancer (LC)."
+    },
+    {
+      "pmid": "40247837",
+      "title": "Prognostic value and immunotherapy analysis of immune cell-related genes in laryngeal cancer.",
+      "authors": [
+        "Zhang S",
+        "Pan J",
+        "Guo H",
+        "et al."
+      ],
+      "journal": "PeerJ",
+      "year": "2025",
+      "doi": "10.7717/peerj.19239",
+      "abstract": "Laryngeal cancer (LC) is a prevalent head and neck carcinoma. Extensive research has established a link between immune cells in the tumor microenvironment (TME) and cancer progression, as well as responses to immunotherapy. This study aims to develop a prognostic model based on immune cell-related genes and examine the TME in LC."
+    },
+    {
+      "pmid": "29371965",
+      "title": "A link between RelB expression and tumor progression in laryngeal cancer.",
+      "authors": [
+        "Giopanou I",
+        "Lilis I",
+        "Papadaki H",
+        "et al."
+      ],
+      "journal": "Oncotarget",
+      "year": "2017",
+      "doi": "10.18632/oncotarget.23109",
+      "abstract": "Laryngeal cancer is a frequent malignancy originating from the squamous vocal epithelium in a multi-stage fashion in response to environmental carcinogens. Although most cases can be cured by surgery and/or radiotherapy, advanced and relapsing disease is common, and biomarkers of such dismal cases are urgently needed. The cancer genome of laryngeal cancers was recently shown to feature a signature of aberrant nuclear factor (NF)-κB activation, but this finding has not been clinically exploited. We analyzed primary tumor samples of 96 well-documented and longitudinally followed patients covering the whole spectrum of laryngeal neoplasia, including 21 patients with benign laryngeal diseases, 15 patients with dysplasia, 43 patients with early-stage carcinoma, and 17 patients with locally advanced carcinoma, for immunoreactivity of "
+    },
+    {
+      "pmid": "40229748",
+      "title": "Identification of m6 A-regulated ferroptosis biomarkers for prognosis in laryngeal cancer.",
+      "authors": [
+        "Wang X",
+        "Zhang W",
+        "Liang K",
+        "et al."
+      ],
+      "journal": "BMC Cancer",
+      "year": "2025",
+      "doi": "10.1186/s12885-025-14134-8",
+      "abstract": "Laryngeal cancer (LC) is a malignant tumor that occurs in the larynx. N6-methyladenosine (m6A) RNA methylation, a pivotal and prevalent epigenetic modification in eukaryotic mRNA, intricately intertwines with ferroptosis, and together, they play a crucial role in the development of LC. Accordingly, further research on related molecular mechanisms and pathology of LC is necessary. Weighted gene co-expression network analysis and correlation analysis were used to identify differentially expressed m6A-related ferroptosis genes in LC. The TCGA-HNSC and GSE65858 datasets were obtained from public databases. The TCGA-HNSC dataset consisted of 110 primary tumor oropharynx samples and 12 control oropharynx samples, while the GSE65858 dataset contained forty-eight primary tumor oropharynx samples. Univariate Cox and least absolute shrinkage and selection operator (LASSO) regression were utilized for feature selection and risk model construction in the TCGA-HNSC dataset. The risk model was validated in the GSE65858 dataset. Then, a nomogram was built based on the independent prognostic factor identified using univariate and multivariate Cox regression in the TCGA-HNSC dataset. Mutation analysis, immune-related analysis, and drug sensitivity prediction were applied to analyze the utility of the risk model in the TCGA-HNSC dataset. Additionally, qRT-PCR and western blot were performed to detect the TFRC, RGS4, and FTH1 expression. Three biomarkers were identified to build a risk model using the univariate Cox and LASSO regression algorithms. Receiver operating characteristic (ROC) analysis verified the accuracy of the risk model. Tumor Immune Dysfunction and Exclusion (TIDE) and Estimation of STromal and Immune cells in MAlignant Tumors using the Expression data (ESTIMATE) algorithm showed a positive relationship between risk score and TIDE or ESTIMATE score. Furthermore, drug sensitivity prediction found that 19 chemotherapy drugs were strongly correlated with a risk score. TFRC, RGS4, and FTH1 exhibited high expression levels in 30 laryngeal carcinoma tissues and cell lines. Notably, TFRC and FTH1 expression levels were significantly associated with patient prognosis. In Conclusion, TFRC, RGS4, and FTH1, were identified as m6A-regulated ferroptosis biomarkers in LC, providing insights into LC treatment and prognosis."
+    },
+    {
+      "pmid": "39153653",
+      "title": "Circular RNAs in laryngeal cancer.",
+      "authors": [
+        "Razipour M",
+        "Jamali Z",
+        "Khorsand M",
+        "et al."
+      ],
+      "journal": "Clin Chim Acta",
+      "year": "2025",
+      "doi": "10.1016/j.cca.2024.119916",
+      "abstract": "Laryngeal cancer remains a significant global health concern, with poor prognosis for advanced-stage disease highlighting the need for novel diagnostic, prognostic, and therapeutic approaches. Circular RNAs (circRNAs), a class of covalently closed non-coding RNAs, have emerged as important regulators of gene expression and cellular processes in various cancers, including laryngeal cancer. This review summarizes the current understanding of circRNAs in laryngeal cancer, covering their biogenesis, regulatory mechanisms, and potential clinical applications. We explore the diverse functions of circRNAs, including their roles as miRNA sponges, protein interactors, and direct mRNA regulators, and their influence on key cellular processes such as proliferation, invasion, and metastasis. The review highlights promising circRNAs as diagnostic and prognostic biomarkers, as well as potential therapeutic targets. We also outline current strategies for circRNA modulation, including suppression techniques like RNA interference and CRISPR/Cas systems, and overexpression methods using vectors and synthetic circRNAs."
+    }
+  ]
+}
