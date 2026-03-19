@@ -11,7 +11,7 @@
     "02_unicox"
   ],
   "prompts": {
-    "discussion_writer": "/mnt/home/dingyy/SCIWriter/prompts/discussion_writer.md"
+    "discussion_writer": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/../../prompts/discussion_writer.md"
   },
   "input_files": {
     "storyline_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/storyline.md",

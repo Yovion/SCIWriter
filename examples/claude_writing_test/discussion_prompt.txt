@@ -7,7 +7,7 @@
 5. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/results_draft.md
 6. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/introduction_draft.md
 7. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/title_candidates.md
-8. /mnt/home/dingyy/SCIWriter/prompts/discussion_writer.md
+8. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/../../prompts/discussion_writer.md
 
 然后写一份 SCI 风格的 Discussion 初稿，要求：
 1. 用英文

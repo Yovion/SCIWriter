@@ -12,7 +12,7 @@
     "02_unicox"
   ],
   "prompts": {
-    "introduction_writer": "/mnt/home/dingyy/SCIWriter/prompts/introduction_writer.md"
+    "introduction_writer": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/../../prompts/introduction_writer.md"
   },
   "input_files": {
     "storyline_path": "/mnt/home/dingyy/SCIWriter/examples/claude_writing_test/storyline.md",

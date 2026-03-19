@@ -8,7 +8,7 @@
 6. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/title_candidates.md
 7. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/introduction_refs_selected.json
 8. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/introduction_claims_map.json
-9. /mnt/home/dingyy/SCIWriter/prompts/introduction_writer.md
+9. /mnt/home/dingyy/SCIWriter/examples/claude_writing_test/../../prompts/introduction_writer.md
 
 然后写一份 SCI 风格的 Introduction 初稿，要求：
 1. 用英文
