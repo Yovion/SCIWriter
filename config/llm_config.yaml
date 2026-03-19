@@ -1,0 +1,44 @@
+# SCIWriter LLM Configuration
+#
+# This file configures the LLM provider for literature summarization
+# and text generation tasks.
+
+llm:
+  # Provider: "anthropic" (currently supported)
+  # Future: "openai", "local"
+  provider: "anthropic"
+
+  # API Key Configuration
+  # The API key will be read from the environment variable specified below.
+  # Set your API key in the environment before running scripts:
+  #   export ANTHROPIC_API_KEY="your-api-key-here"
+  api_key_env: "ANTHROPIC_API_KEY"
+
+  # Base URL (optional)
+  # If using a proxy or custom endpoint, specify the base URL here.
+  # Leave empty or comment out to use official Anthropic API.
+  # Example: "http://newapi.200m.997555.xyz"
+  base_url: "http://newapi.200m.997555.xyz"
+
+  # Model Configuration
+  # Anthropic Claude models:
+  #   - claude-opus-4-6 (most capable)
+  #   - claude-sonnet-4-20250514 (recommended, balanced)
+  #   - claude-haiku-4-20250514 (fastest, less capable)
+  model: "claude-opus-4-6"
+
+  # Generation Parameters
+  max_tokens: 4000
+  temperature: 0.7
+
+  # Timeout and Retry
+  timeout: 60  # seconds
+  max_retries: 3
+  retry_delay: 2  # seconds
+
+# Future: OpenAI configuration (not implemented yet)
+# openai:
+#   api_key_env: "OPENAI_API_KEY"
+#   model: "gpt-4"
+#   max_tokens: 4000
+#   temperature: 0.7

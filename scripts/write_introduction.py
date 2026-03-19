@@ -6,6 +6,14 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
+# Try to import LLM client (optional dependency)
+try:
+    from llm_client import call, call_json, is_available as llm_available
+    LLM_AVAILABLE = llm_available()
+except ImportError:
+    LLM_AVAILABLE = False
+    print("ℹ️  llm_client not available, using rule-based approach", file=sys.stderr)
+
 
 def check_file_exists(file_path, description):
     """Check if a file exists and print status."""
@@ -302,6 +310,329 @@ def generate_claims_map(project_context, selected_refs):
     }
 
     return result
+
+
+# ============================================================================
+# NEW: Deep Literature Summary Functions (LLM-driven)
+# ============================================================================
+
+def assign_refs_to_theme(refs, keywords):
+    """
+    Assign references to a theme based on keywords.
+
+    Args:
+        refs: List of references
+        keywords: List of keyword strings
+
+    Returns:
+        list: References matching the theme
+    """
+    theme_refs = []
+    for ref in refs:
+        text = (ref.get('title', '') + " " + ref.get('abstract', '')).lower()
+        if any(kw.lower() in text for kw in keywords):
+            theme_refs.append(ref)
+    return theme_refs
+
+
+def extract_key_points_llm(theme_refs, theme_name, cancer_type):
+    """
+    Extract key points from theme references using LLM.
+
+    Args:
+        theme_refs: List of references for this theme
+        theme_name: Theme name
+        cancer_type: Cancer type
+
+    Returns:
+        list: List of key point dictionaries
+    """
+    if not theme_refs:
+        return []
+
+    # Build abstracts text (max 10 refs)
+    abstracts_text = "\n\n".join([
+        f"[PMID:{ref['pmid']}] {ref['title']}\n{ref.get('abstract', 'No abstract')[:500]}"
+        for ref in theme_refs[:10]
+    ])
+
+    prompt = f"""You are summarizing scientific literature for the "{theme_name}" section of a research paper about {cancer_type}.
+
+Given the following paper abstracts, extract 2-4 key points that:
+1. Are directly writable into an Introduction section
+2. Represent important facts or consensus findings
+3. Are supported by the provided papers
+
+Abstracts:
+{abstracts_text}
+
+Output ONLY a JSON array (no markdown, no explanation):
+[
+  {{
+    "point": "Clear, one-sentence statement suitable for Introduction",
+    "supporting_pmids": ["12345678", "23456789"]
+  }}
+]
+
+Requirements:
+- Each point should be a complete, factual statement
+- Use formal scientific language
+- Include 1-3 PMIDs per point
+- Output 2-4 points maximum
+"""
+
+    try:
+        key_points = call_json(prompt)
+
+        # Validate format
+        if isinstance(key_points, list):
+            for kp in key_points:
+                if "point" not in kp or "supporting_pmids" not in kp:
+                    print(f"  ⚠️  Invalid key point format for {theme_name}", file=sys.stderr)
+                    return []
+            return key_points
+        else:
+            print(f"  ⚠️  Expected list, got {type(key_points)} for {theme_name}", file=sys.stderr)
+            return []
+
+    except Exception as e:
+        print(f"  ⚠️  Failed to extract key points for {theme_name}: {e}", file=sys.stderr)
+        return []
+
+
+def extract_key_points_rules(theme_refs, theme_name):
+    """
+    Extract key points using simple rules (fallback when LLM not available).
+
+    Args:
+        theme_refs: List of references for this theme
+        theme_name: Theme name
+
+    Returns:
+        list: List of key point dictionaries
+    """
+    key_points = []
+
+    for ref in theme_refs[:3]:
+        abstract = ref.get('abstract', '')
+        if abstract:
+            # Extract first sentence as key point
+            first_sentence = abstract.split('.')[0] + '.'
+            key_points.append({
+                'point': first_sentence,
+                'supporting_pmids': [ref['pmid']]
+            })
+
+    return key_points
+
+
+def generate_lit_summary(selected_refs, cancer_type):
+    """
+    Generate thematic literature summary.
+
+    Args:
+        selected_refs: List of selected references
+        cancer_type: Cancer type string
+
+    Returns:
+        dict: Literature summary with themes and key points
+    """
+    print("\n" + "=" * 60)
+    print("LITERATURE SUMMARY GENERATION")
+    print("=" * 60)
+
+    if LLM_AVAILABLE:
+        print("✓ Using LLM-driven deep summarization")
+    else:
+        print("ℹ️  Using rule-based summarization (LLM not available)")
+
+    # Fixed theme structure for Introduction
+    themes = [
+        {
+            'theme_id': 'disease_burden',
+            'theme_name': 'Disease Burden and Clinical Challenge',
+            'keywords': ['mortality', 'incidence', 'survival', 'burden', 'challenge', 'epidemiology']
+        },
+        {
+            'theme_id': 'existing_biomarkers',
+            'theme_name': 'Current Prognostic Biomarkers',
+            'keywords': ['biomarker', 'TNM', 'staging', 'molecular', 'EGFR', 'ALK', 'prognostic']
+        },
+        {
+            'theme_id': 'transcriptome_approaches',
+            'theme_name': 'Transcriptome-Based Studies',
+            'keywords': ['transcriptome', 'RNA-seq', 'gene expression', 'differential expression', 'Cox']
+        },
+        {
+            'theme_id': 'research_gap',
+            'theme_name': 'Research Gap',
+            'keywords': ['gap', 'need', 'lacking', 'limited', 'challenge', 'systematic']
+        }
+    ]
+
+    # Assign refs to themes and extract key points
+    for theme in themes:
+        print(f"\n  Processing theme: {theme['theme_name']}")
+        theme_refs = assign_refs_to_theme(selected_refs, theme['keywords'])
+        print(f"    Found {len(theme_refs)} relevant references")
+
+        if LLM_AVAILABLE:
+            theme['key_points'] = extract_key_points_llm(
+                theme_refs,
+                theme['theme_name'],
+                cancer_type
+            )
+        else:
+            theme['key_points'] = extract_key_points_rules(
+                theme_refs,
+                theme['theme_name']
+            )
+
+        print(f"    Extracted {len(theme['key_points'])} key points")
+
+        # Remove keywords from output
+        del theme['keywords']
+
+    return {
+        'metadata': {
+            'total_refs': len(selected_refs),
+            'generated_at': datetime.now().isoformat(),
+            'cancer_type': cancer_type,
+            'method': 'llm' if LLM_AVAILABLE else 'rules'
+        },
+        'themes': themes
+    }
+
+
+def format_themes_for_prompt(themes):
+    """Format themes for LLM prompt."""
+    lines = []
+    for theme in themes:
+        lines.append(f"\n## {theme['theme_name']}")
+        for kp in theme['key_points']:
+            pmids_str = "; ".join([f"PMID:{p}" for p in kp['supporting_pmids']])
+            lines.append(f"- {kp['point']} [{pmids_str}]")
+    return "\n".join(lines)
+
+
+def validate_introduction_quality(intro_text):
+    """
+    Validate Introduction text quality.
+
+    Args:
+        intro_text: Generated Introduction text
+
+    Returns:
+        tuple: (is_valid, issues_list)
+    """
+    issues = []
+
+    # Check 1: PMID citations (at least 3)
+    import re
+    pmid_pattern = r'PMID:\d+'
+    pmids = re.findall(pmid_pattern, intro_text)
+    if len(pmids) < 3:
+        issues.append(f"Insufficient PMID citations: {len(pmids)} found, need at least 3")
+
+    # Check 2: Paragraph count (should be 4)
+    paragraphs = [p.strip() for p in intro_text.split('\n\n') if p.strip()]
+    if len(paragraphs) < 4:
+        issues.append(f"Insufficient paragraphs: {len(paragraphs)} found, need 4")
+
+    # Check 3: Word count (at least 700)
+    word_count = len(intro_text.split())
+    if word_count < 700:
+        issues.append(f"Insufficient word count: {word_count} words, need at least 700")
+
+    is_valid = len(issues) == 0
+
+    return is_valid, issues
+
+
+def generate_introduction_text(lit_summary, cancer_type, study_objective, retry=False):
+    """
+    Generate Introduction text based on literature summary.
+
+    Args:
+        lit_summary: Literature summary dictionary
+        cancer_type: Cancer type string
+        study_objective: Study objective string
+        retry: Whether this is a retry attempt
+
+    Returns:
+        str: Generated Introduction text
+    """
+    if not retry:
+        print("\n" + "=" * 60)
+        print("INTRODUCTION TEXT GENERATION")
+        print("=" * 60)
+
+    if not LLM_AVAILABLE:
+        print("✗ LLM not available, cannot generate Introduction text")
+        print("  Please use the generated prompt manually with Claude")
+        return None
+
+    if retry:
+        print("\n  ⚠️  Retrying with stricter requirements...")
+    else:
+        print("✓ Generating Introduction with LLM...")
+
+    themes_text = format_themes_for_prompt(lit_summary['themes'])
+
+    # Base prompt
+    base_prompt = f"""Write an Introduction section for a scientific paper with the following structure:
+
+Paragraph 1: Disease burden and clinical challenge
+Paragraph 2: Current prognostic biomarkers and their limitations
+Paragraph 3: Transcriptome-based approaches for biomarker discovery
+Paragraph 4: Research gap and study objectives
+
+Cancer type: {cancer_type}
+Study objective: {study_objective}
+
+Available literature summary:
+{themes_text}
+
+Requirements:
+1. Use formal scientific writing style
+2. Insert PMID citations in format [PMID:12345678] or [PMID:12345678; PMID:23456789]
+3. Each paragraph should be 4-6 sentences
+4. Total length: 800-1000 words
+5. End with a clear statement of study objectives
+6. Use the key points from the literature summary
+7. Ensure logical flow between paragraphs
+8. Do NOT use words like "novel", "innovative", "breakthrough"
+9. Use conservative language: "may", "suggest", "potential"
+10. Focus on "screening", "identification", "association" rather than "mechanism"
+"""
+
+    # Add stricter requirements for retry
+    if retry:
+        base_prompt += """
+
+CRITICAL REQUIREMENTS (you failed these in the previous attempt):
+- You MUST insert at least 5 PMID citations throughout the text
+- You MUST write exactly 4 paragraphs separated by blank lines
+- You MUST write at least 800 words (do NOT compress or summarize excessively)
+- Each paragraph should be substantive (5-7 sentences, not 2-3)
+- Use the supporting PMIDs from the literature summary above
+- Do NOT write a brief overview - write a full, detailed Introduction
+"""
+
+    base_prompt += "\nOutput ONLY the Introduction text (no title, no section header)."
+
+    try:
+        intro_text = call(base_prompt, max_tokens=2500 if retry else 2000)
+
+        if not retry:
+            print("✓ Introduction text generated successfully")
+        else:
+            print("  ✓ Retry generation completed")
+
+        return intro_text
+    except Exception as e:
+        print(f"✗ Failed to generate Introduction text: {e}", file=sys.stderr)
+        return None
 
 
 def generate_manifest(project_path, prompts_dir, literature_mode='project_only',
@@ -622,6 +953,102 @@ This will:
             print(f"✗ Claims mapping failed: {e}")
             print("  Continuing without claims mapping...")
 
+    # NEW: Phase: Literature Summary (if refs selected and LLM available)
+    lit_summary_path = None
+    lit_summary_data = None
+
+    if refs_selected_data:
+        try:
+            # Get cancer type from project context
+            cancer_type = "cancer"
+            project_brief_path = project_path / "project_brief_resolved.json"
+            if project_brief_path.exists():
+                with open(project_brief_path, 'r', encoding='utf-8') as f:
+                    project_context = json.load(f)
+                    cancer_type = project_context.get('disease', {}).get('name', 'cancer')
+
+            # Generate literature summary
+            lit_summary_data = generate_lit_summary(
+                refs_selected_data['selected_refs'],
+                cancer_type
+            )
+
+            lit_summary_path = project_path / "introduction_lit_summary.json"
+            with open(lit_summary_path, 'w', encoding='utf-8') as f:
+                json.dump(lit_summary_data, f, indent=2, ensure_ascii=False)
+
+            print(f"\n✓ Literature summary saved to: {lit_summary_path}")
+            print(f"  - {len(lit_summary_data['themes'])} themes")
+            print(f"  - Method: {lit_summary_data['metadata']['method']}")
+
+        except Exception as e:
+            print(f"\n✗ Literature summary generation failed: {e}")
+            print("  Continuing without literature summary...")
+
+    # NEW: Phase: Introduction Text Generation (if LLM available and lit_summary exists)
+    intro_draft_path = project_path / "introduction_draft.md"
+
+    if lit_summary_data and LLM_AVAILABLE:
+        try:
+            # Get study objective
+            study_objective = "identify prognostic biomarkers via DEG analysis and Cox regression"
+            project_brief_path = project_path / "project_brief_resolved.json"
+            if project_brief_path.exists():
+                with open(project_brief_path, 'r', encoding='utf-8') as f:
+                    project_context = json.load(f)
+                    study_focus = project_context.get('study_focus', {})
+                    if study_focus:
+                        study_objective = study_focus.get('main_theme', study_objective)
+
+            # Generate Introduction text
+            intro_text = generate_introduction_text(
+                lit_summary_data,
+                cancer_type,
+                study_objective
+            )
+
+            if intro_text:
+                # Validate quality
+                is_valid, issues = validate_introduction_quality(intro_text)
+
+                if not is_valid:
+                    print("\n⚠️  Quality check failed:")
+                    for issue in issues:
+                        print(f"    - {issue}")
+
+                    # Automatic retry once
+                    intro_text = generate_introduction_text(
+                        lit_summary_data,
+                        cancer_type,
+                        study_objective,
+                        retry=True
+                    )
+
+                    if intro_text:
+                        # Re-validate after retry
+                        is_valid, issues = validate_introduction_quality(intro_text)
+                        if not is_valid:
+                            print("\n⚠️  Quality check still failed after retry:")
+                            for issue in issues:
+                                print(f"    - {issue}")
+                            print("  Keeping current output anyway...")
+                        else:
+                            print("\n✓ Quality check passed after retry")
+                else:
+                    print("\n✓ Quality check passed")
+
+                # Save to file
+                with open(intro_draft_path, 'w', encoding='utf-8') as f:
+                    f.write(intro_text)
+
+                print(f"\n✓ Introduction draft saved to: {intro_draft_path}")
+                print(f"  - Length: {len(intro_text.split())} words")
+
+        except Exception as e:
+            print(f"\n✗ Introduction text generation failed: {e}")
+            print("  Falling back to prompt generation...")
+            lit_summary_data = None  # Force prompt generation
+
     # Generate manifest
     print("\n" + "=" * 60)
     print("GENERATING MANIFEST AND PROMPT")
@@ -676,10 +1103,25 @@ This will:
         print(f"  {file_count}. {claims_map_path}")
         file_count += 1
 
+    if lit_summary_path:
+        print(f"  {file_count}. {lit_summary_path}")
+        file_count += 1
+
+    if intro_draft_path.exists():
+        print(f"  {file_count}. {intro_draft_path}")
+        file_count += 1
+
     print("\nNext steps:")
-    print(f"  1. Review the prompt: cat {prompt_path}")
-    print(f"  2. Copy the prompt content and send it to Claude Code")
-    print(f"  3. Claude will generate: {project_path}/introduction_draft.md")
+    if intro_draft_path.exists() and LLM_AVAILABLE:
+        print(f"  ✓ Introduction draft already generated: {intro_draft_path}")
+        print(f"  1. Review the draft: cat {intro_draft_path}")
+        print(f"  2. Check PMID citations are correctly inserted")
+        if lit_summary_path:
+            print(f"  3. Review literature summary: cat {lit_summary_path}")
+    else:
+        print(f"  1. Review the prompt: cat {prompt_path}")
+        print(f"  2. Copy the prompt content and send it to Claude Code")
+        print(f"  3. Claude will generate: {project_path}/introduction_draft.md")
 
     if literature_mode == "pubmed_grounded":
         print("\n📚 Literature-grounded mode active:")
