@@ -78,33 +78,57 @@ def extract_search_keywords(project_path):
     return keywords
 
 
-def generate_pubmed_queries(keywords):
-    """Generate PubMed search queries based on keywords."""
+def generate_pubmed_queries(keywords, purpose="introduction"):
+    """Generate PubMed search queries based on keywords and purpose."""
     queries = []
     disease = keywords.get("disease", "cancer")
 
-    # Query 1: Disease + Prognostic Biomarkers
-    query1 = f'({disease}[Title/Abstract]) AND (prognostic biomarker[Title/Abstract] OR prognosis[Title/Abstract]) AND (gene expression[Title/Abstract] OR transcriptome[Title/Abstract])'
-    queries.append({
-        "name": "Disease + Prognostic Biomarkers",
-        "query": query1
-    })
-
-    # Query 2: Disease + Differential Expression + Prognosis
-    if "differential expression" in keywords.get("methods", []):
-        query2 = f'({disease}[Title/Abstract]) AND (differential expression[Title/Abstract] OR differentially expressed genes[Title/Abstract]) AND (survival[Title/Abstract] OR prognosis[Title/Abstract])'
+    if purpose == "introduction":
+        # Query 1: Disease + Prognostic Biomarkers
+        query1 = f'({disease}[Title/Abstract]) AND (prognostic biomarker[Title/Abstract] OR prognosis[Title/Abstract]) AND (gene expression[Title/Abstract] OR transcriptome[Title/Abstract])'
         queries.append({
-            "name": "Disease + Differential Expression + Prognosis",
+            "name": "Disease + Prognostic Biomarkers",
+            "query": query1
+        })
+
+        # Query 2: Disease + Differential Expression + Prognosis
+        if "differential expression" in keywords.get("methods", []):
+            query2 = f'({disease}[Title/Abstract]) AND (differential expression[Title/Abstract] OR differentially expressed genes[Title/Abstract]) AND (survival[Title/Abstract] OR prognosis[Title/Abstract])'
+            queries.append({
+                "name": "Disease + Differential Expression + Prognosis",
+                "query": query2
+            })
+
+        # Query 3: Disease + Cox Regression
+        if "Cox regression" in keywords.get("methods", []):
+            query3 = f'({disease}[Title/Abstract]) AND (Cox regression[Title/Abstract] OR survival analysis[Title/Abstract]) AND (biomarker[Title/Abstract])'
+            queries.append({
+                "name": "Disease + Cox Regression",
+                "query": query3
+            })
+
+    elif purpose == "discussion":
+        # Query 1: Disease + Prognostic Signature Comparison
+        query1 = f'({disease}[Title/Abstract]) AND (prognostic signature[Title/Abstract] OR gene signature[Title/Abstract]) AND (survival[Title/Abstract] OR prognosis[Title/Abstract])'
+        queries.append({
+            "name": "Disease + Prognostic Signature Comparison",
+            "query": query1
+        })
+
+        # Query 2: Disease + Biomarker Validation
+        query2 = f'({disease}[Title/Abstract]) AND (biomarker[Title/Abstract] OR predictor[Title/Abstract]) AND (validation[Title/Abstract] OR clinical significance[Title/Abstract])'
+        queries.append({
+            "name": "Disease + Biomarker Validation",
             "query": query2
         })
 
-    # Query 3: Disease + Cox Regression
-    if "Cox regression" in keywords.get("methods", []):
-        query3 = f'({disease}[Title/Abstract]) AND (Cox regression[Title/Abstract] OR survival analysis[Title/Abstract]) AND (biomarker[Title/Abstract])'
-        queries.append({
-            "name": "Disease + Cox Regression",
-            "query": query3
-        })
+        # Query 3: Disease + Transcriptome Analysis
+        if "differential expression" in keywords.get("methods", []):
+            query3 = f'({disease}[Title/Abstract]) AND (transcriptome[Title/Abstract] OR RNA-seq[Title/Abstract]) AND (prognostic[Title/Abstract] OR survival[Title/Abstract])'
+            queries.append({
+                "name": "Disease + Transcriptome Analysis",
+                "query": query3
+            })
 
     return queries
 
@@ -237,12 +261,12 @@ def fetch_article_details(pmids, api_key=None, rate_limit=0.4):
     return articles
 
 
-def save_results(project_path, queries, all_articles, keywords):
+def save_results(project_path, queries, all_articles, keywords, purpose="introduction"):
     """Save search results to files."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Save pubmed_query.txt
-    query_file = project_path / "pubmed_query.txt"
+    # Save pubmed_query_{purpose}.txt
+    query_file = project_path / f"pubmed_query_{purpose}.txt"
     with open(query_file, "w", encoding="utf-8") as f:
         f.write(f"PubMed Search Queries\n")
         f.write(f"Generated: {timestamp}\n")
@@ -257,8 +281,8 @@ def save_results(project_path, queries, all_articles, keywords):
             f.write(f"Query {i}: {q['name']}\n")
             f.write(f"{q['query']}\n\n")
 
-    # Save pubmed_results.json
-    results_file = project_path / "pubmed_results.json"
+    # Save pubmed_results_{purpose}.json
+    results_file = project_path / f"pubmed_results_{purpose}.json"
     results_data = {
         "query_date": datetime.now().strftime("%Y-%m-%d"),
         "queries": [q["query"] for q in queries],
@@ -269,8 +293,8 @@ def save_results(project_path, queries, all_articles, keywords):
     with open(results_file, "w", encoding="utf-8") as f:
         json.dump(results_data, f, indent=2, ensure_ascii=False)
 
-    # Save pubmed_refs_brief.md
-    refs_file = project_path / "pubmed_refs_brief.md"
+    # Save pubmed_refs_brief_{purpose}.md
+    refs_file = project_path / f"pubmed_refs_brief_{purpose}.md"
     with open(refs_file, "w", encoding="utf-8") as f:
         f.write(f"# PubMed Literature Search Results\n\n")
         f.write(f"**Search Date**: {datetime.now().strftime('%Y-%m-%d')}\n")
@@ -310,20 +334,24 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Example usage:
-  python3 search_pubmed.py --project /path/to/your/project
+  python3 search_pubmed.py --project /path/to/your/project --purpose introduction
+  python3 search_pubmed.py --project /path/to/your/project --purpose discussion
 
 This will:
   1. Extract search keywords from project files
-  2. Generate PubMed search queries
+  2. Generate PubMed search queries (tailored to purpose)
   3. Search PubMed and retrieve articles
-  4. Save results to project directory
+  4. Save results to project directory with purpose suffix
         """
     )
     parser.add_argument("--project", required=True, help="Project directory path")
+    parser.add_argument("--purpose", choices=["introduction", "discussion"], default="introduction",
+                        help="Purpose of literature search (default: introduction)")
     parser.add_argument("--max-results", type=int, default=30, help="Maximum results per query (default: 30)")
     args = parser.parse_args()
 
     project_path = Path(args.project).resolve()
+    purpose = args.purpose
 
     # Check for NCBI API key
     api_key = os.environ.get("NCBI_API_KEY")
@@ -376,7 +404,7 @@ This will:
     print("GENERATING PUBMED QUERIES")
     print("=" * 60)
 
-    queries = generate_pubmed_queries(keywords)
+    queries = generate_pubmed_queries(keywords, purpose=purpose)
 
     print(f"\nGenerated {len(queries)} queries:")
     for i, q in enumerate(queries, 1):
@@ -417,7 +445,7 @@ This will:
     print("SAVING RESULTS")
     print("=" * 60)
 
-    query_file, results_file, refs_file = save_results(project_path, queries, all_articles, keywords)
+    query_file, results_file, refs_file = save_results(project_path, queries, all_articles, keywords, purpose=purpose)
 
     print(f"\n✓ Generated: {query_file}")
     print(f"✓ Generated: {results_file}")
@@ -428,7 +456,8 @@ This will:
     print("SEARCH COMPLETED SUCCESSFULLY")
     print("=" * 60)
 
-    print(f"\nRetrieved articles: {len(all_articles)}")
+    print(f"\nPurpose: {purpose}")
+    print(f"Retrieved articles: {len(all_articles)}")
     print("\nOutput files:")
     print(f"  1. {query_file.name}")
     print(f"  2. {results_file.name}")
@@ -436,7 +465,10 @@ This will:
 
     print("\nNext steps:")
     print(f"  1. Review the results: cat {refs_file}")
-    print("  2. Use these references when writing Introduction")
+    if purpose == "introduction":
+        print("  2. Use these references when writing Introduction")
+    elif purpose == "discussion":
+        print("  2. Use these references when writing Discussion")
 
 
 if __name__ == "__main__":

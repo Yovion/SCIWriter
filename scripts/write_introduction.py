@@ -677,13 +677,22 @@ def generate_manifest(project_path, prompts_dir, literature_mode='project_only',
         manifest["title_candidates_path"] = str(title_candidates_path)
 
     # Add PubMed results paths as top-level fields if they exist
-    pubmed_results_path = project_path / "pubmed_results.json"
-    if pubmed_results_path.exists():
-        manifest["pubmed_results_path"] = str(pubmed_results_path)
+    # Prioritize purpose-specific files, fallback to old filenames
+    pubmed_results_path_intro = project_path / "pubmed_results_introduction.json"
+    pubmed_results_path_old = project_path / "pubmed_results.json"
 
-    pubmed_refs_brief_path = project_path / "pubmed_refs_brief.md"
-    if pubmed_refs_brief_path.exists():
-        manifest["pubmed_refs_brief_path"] = str(pubmed_refs_brief_path)
+    if pubmed_results_path_intro.exists():
+        manifest["pubmed_results_path"] = str(pubmed_results_path_intro)
+    elif pubmed_results_path_old.exists():
+        manifest["pubmed_results_path"] = str(pubmed_results_path_old)
+
+    pubmed_refs_brief_path_intro = project_path / "pubmed_refs_brief_introduction.md"
+    pubmed_refs_brief_path_old = project_path / "pubmed_refs_brief.md"
+
+    if pubmed_refs_brief_path_intro.exists():
+        manifest["pubmed_refs_brief_path"] = str(pubmed_refs_brief_path_intro)
+    elif pubmed_refs_brief_path_old.exists():
+        manifest["pubmed_refs_brief_path"] = str(pubmed_refs_brief_path_old)
 
     # Add literature workflow outputs if they exist
     if refs_selected_path:
@@ -696,7 +705,7 @@ def generate_manifest(project_path, prompts_dir, literature_mode='project_only',
 
     # Add workflow status
     manifest["workflow_status"] = {
-        "pubmed_available": pubmed_results_path.exists(),
+        "pubmed_available": "pubmed_results_path" in manifest,
         "refs_selection_completed": refs_selected_path is not None,
         "claims_mapping_completed": claims_map_path is not None,
         "ready_for_writing": True
@@ -870,8 +879,17 @@ This will:
 
     print("\n✓ All prerequisite checks passed")
 
-    # Detect literature mode
-    pubmed_results_path = project_path / "pubmed_results.json"
+    # Detect literature mode - prioritize purpose-specific files
+    pubmed_results_path = project_path / "pubmed_results_introduction.json"
+    pubmed_refs_brief_path = project_path / "pubmed_refs_brief_introduction.md"
+
+    # Fallback to old filenames if purpose-specific files don't exist
+    if not pubmed_results_path.exists():
+        pubmed_results_path = project_path / "pubmed_results.json"
+
+    if not pubmed_refs_brief_path.exists():
+        pubmed_refs_brief_path = project_path / "pubmed_refs_brief.md"
+
     pubmed_available = pubmed_results_path.exists()
 
     literature_mode = "pubmed_grounded" if pubmed_available else "project_only"

@@ -54,38 +54,49 @@ def check_prerequisites(project_path):
 
 
 def read_section_content(file_path, section_title):
-    """Read section content and remove duplicate top-level heading if present."""
+    """Read section content and remove duplicate top-level or second-level heading if present."""
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read().strip()
 
-    # Check if first line is the duplicate heading
+    # Strip leading # SectionTitle or ## SectionTitle
     lines = content.split("\n")
-    if lines and lines[0].strip() == f"# {section_title}":
-        # Remove the first line (duplicate heading)
+    if lines and lines[0].strip() in (f"# {section_title}", f"## {section_title}"):
         content = "\n".join(lines[1:]).strip()
 
     return content
 
 
 def read_title_candidate(project_path):
-    """Read the first title candidate from title_candidates.md if it exists."""
-    title_file = project_path / "title_candidates.md"
+    """Read title: selected_title.txt > title_candidates.md (first non-empty non-heading line)."""
+    # Priority 1: selected_title.txt (user-chosen final title)
+    selected_file = project_path / "selected_title.txt"
+    if selected_file.exists():
+        title = selected_file.read_text(encoding="utf-8").strip()
+        if title:
+            return title
 
+    # Priority 2: title_candidates.md — find first title after any ## heading
+    title_file = project_path / "title_candidates.md"
     if not title_file.exists():
         return None
 
     try:
-        with open(title_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
+        lines = title_file.read_text(encoding="utf-8").splitlines()
 
-        # Find the first title (after "## Title 1")
+        # Strategy A: look for ## Title 1 / ## Title / ## 1 heading then take next non-empty line
         for i, line in enumerate(lines):
-            if line.strip().startswith("## Title 1"):
-                # The next non-empty line should be the title
+            stripped = line.strip()
+            if stripped.startswith("##") and ("title" in stripped.lower() or "1" in stripped):
                 for j in range(i + 1, len(lines)):
-                    title_line = lines[j].strip()
-                    if title_line and not title_line.startswith("#"):
-                        return title_line
+                    candidate = lines[j].strip()
+                    if candidate and not candidate.startswith("#"):
+                        return candidate
+
+        # Strategy B: fallback — return first non-empty, non-heading line in the file
+        for line in lines:
+            candidate = line.strip()
+            if candidate and not candidate.startswith("#"):
+                return candidate
 
         return None
     except Exception as e:

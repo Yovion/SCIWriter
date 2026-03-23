@@ -241,6 +241,51 @@ def call(prompt, max_tokens=None, temperature=None):
                 raise LLMAPIError(f"LLM API call failed after {max_retries} attempts: {e}")
 
 
+def _extract_json_from_text(text):
+    """
+    Try to extract the first complete JSON object or array from text.
+    Handles: trailing content after JSON, markdown code fences, mixed text blocks.
+
+    Returns:
+        str: Extracted JSON string, or None if not found
+    """
+    import re
+
+    # Strip markdown code fences first
+    text = text.strip()
+    fence_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', text)
+    if fence_match:
+        text = fence_match.group(1).strip()
+
+    # Try to find the first { or [ and extract the matching block
+    for start_char, end_char in [('{', '}'), ('[', ']')]:
+        start = text.find(start_char)
+        if start == -1:
+            continue
+        depth = 0
+        in_string = False
+        escape_next = False
+        for i, ch in enumerate(text[start:], start):
+            if escape_next:
+                escape_next = False
+                continue
+            if ch == '\\' and in_string:
+                escape_next = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if ch == start_char:
+                depth += 1
+            elif ch == end_char:
+                depth -= 1
+                if depth == 0:
+                    return text[start:i+1]
+    return None
+
+
 def call_json(prompt, max_retries=3):
     """
     Call LLM and return parsed JSON.
@@ -266,6 +311,7 @@ def call_json(prompt, max_retries=3):
         try:
             # Call LLM
             response = call(prompt)
+            raw_response = response
 
             # Clean markdown code blocks if present
             response = response.strip()
@@ -277,9 +323,21 @@ def call_json(prompt, max_retries=3):
                 response = response[:-3]
             response = response.strip()
 
-            # Parse JSON
-            data = json.loads(response)
-            return data
+            # Try direct parse first
+            try:
+                data = json.loads(response)
+                return data
+            except json.JSONDecodeError as e:
+                # If "Extra data" or similar, try extracting first JSON block
+                extracted = _extract_json_from_text(raw_response)
+                if extracted and extracted != response:
+                    try:
+                        data = json.loads(extracted)
+                        print(f"ℹ️  JSON extracted from response with trailing content", file=sys.stderr)
+                        return data
+                    except json.JSONDecodeError:
+                        pass
+                raise
 
         except json.JSONDecodeError as e:
             if attempt < max_retries - 1:

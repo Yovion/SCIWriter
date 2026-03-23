@@ -18,7 +18,7 @@ llm:
   # If using a proxy or custom endpoint, specify the base URL here.
   # Leave empty or comment out to use official Anthropic API.
   # Example: "http://newapi.200m.997555.xyz"
-  base_url: "http://newapi.200m.997555.xyz"
+  base_url: "https://ai4scholar.cc"
 
   # Model Configuration
   # Anthropic Claude models:

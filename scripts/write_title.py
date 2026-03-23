@@ -5,6 +5,13 @@ import yaml
 import argparse
 from pathlib import Path
 
+# Try to import LLM client (optional dependency)
+try:
+    from llm_client import call, is_available as llm_available
+    LLM_AVAILABLE = llm_available()
+except ImportError:
+    LLM_AVAILABLE = False
+
 
 def check_file_exists(file_path, description):
     """Check if a file exists and print status."""
@@ -147,6 +154,59 @@ def generate_prompt(project_path, manifest):
     return prompt
 
 
+def generate_execute_prompt(project_path, manifest):
+    """Generate execution prompt with inline file content."""
+    project_path = Path(project_path)
+
+    def _read(p):
+        return Path(p).read_text(encoding='utf-8') if Path(p).exists() else ''
+
+    storyline = _read(manifest['input_files']['storyline_path'])
+    abstract = _read(manifest['input_files']['abstract_draft_path'])
+    results = _read(manifest['input_files']['results_draft_path'])
+    brief = _read(manifest['project_brief_resolved_path']) if 'project_brief_resolved_path' in manifest else ''
+
+    detected_route = manifest.get('detected_route', 'unknown')
+
+    prompt = f"""Generate 3 candidate manuscript titles for a biomedical SCI study.
+
+STORYLINE:
+{storyline}
+
+ABSTRACT DRAFT:
+{abstract}
+
+RESULTS DRAFT (excerpt):
+{results[:2000]}
+"""
+    if brief:
+        prompt += f"\nPROJECT BRIEF:\n{brief}\n"
+
+    prompt += f"""
+REQUIREMENTS:
+1. Output in markdown format
+2. Number each title as: ## Title 1, ## Title 2, ## Title 3
+3. Each title on its own line immediately after the heading
+4. Titles should reflect: disease, analytical approach (DEG + Cox regression), and study goal
+5. Do NOT use: "novel", "innovative", "breakthrough", "novel mechanism", "therapeutic target"
+6. Length: 10-20 words each
+7. Suitable for transcriptomic/bioinformatics biomarker study
+8. Based on detected_route: {detected_route}
+9. Output ONLY the markdown title list, no explanations
+
+Example format:
+## Title 1
+Identification of Prognostic Biomarkers in [Disease] via Transcriptomic Screening and Survival Analysis
+
+## Title 2
+...
+
+## Title 3
+...
+"""
+    return prompt
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Prepare title generation inputs and generate prompt",
@@ -154,14 +214,11 @@ def main():
         epilog="""
 Example usage:
   python3 write_title.py --project /path/to/your/project
-
-This will:
-  1. Check all required files exist
-  2. Generate title_manifest.json
-  3. Generate title_prompt.txt
+  python3 write_title.py --project /path/to/your/project --execute
         """
     )
     parser.add_argument("--project", required=True, help="Project directory path")
+    parser.add_argument("--execute", action="store_true", help="Execute LLM to generate title_candidates.md directly")
     args = parser.parse_args()
 
     project_path = Path(args.project).resolve()
@@ -216,7 +273,37 @@ This will:
 
     print(f"\n✓ Generated: {prompt_path}")
 
-    # Success summary
+    # Execute mode
+    if args.execute:
+        print("\n" + "=" * 60)
+        print("EXECUTING LLM TO GENERATE TITLE CANDIDATES")
+        print("=" * 60)
+
+        if not LLM_AVAILABLE:
+            print("\n✗ LLM client not available")
+            sys.exit(1)
+
+        try:
+            execute_prompt = generate_execute_prompt(project_path, manifest)
+            print(f"  Prompt length: {len(execute_prompt)} chars")
+            print("\n✓ Calling LLM...")
+            title_text = call(execute_prompt, max_tokens=500)
+
+            title_candidates_path = project_path / "title_candidates.md"
+            with open(title_candidates_path, "w", encoding="utf-8") as f:
+                f.write(title_text)
+
+            print(f"✓ Saved: {title_candidates_path}")
+            print("\nTitle candidates:")
+            print(title_text)
+
+        except Exception as e:
+            print(f"\n✗ LLM execution failed: {e}")
+            sys.exit(1)
+
+        return
+
+    # Success summary (non-execute mode)
     print("\n" + "=" * 60)
     print("PREPARATION COMPLETED SUCCESSFULLY")
     print("=" * 60)

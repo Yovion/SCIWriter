@@ -5,6 +5,13 @@ import yaml
 import argparse
 from pathlib import Path
 
+# Try to import LLM client (optional dependency)
+try:
+    from llm_client import call, is_available as llm_available
+    LLM_AVAILABLE = llm_available()
+except ImportError:
+    LLM_AVAILABLE = False
+
 
 def check_file_exists(file_path, description):
     """Check if a file exists and print status."""
@@ -53,6 +60,11 @@ def check_prerequisites(project_path, prompts_dir):
                 check_file_exists(module_context, f"{module_name}/module_context.json (optional)")
             if evidence.exists():
                 check_file_exists(evidence, f"{module_name}/evidence.csv (optional)")
+
+    # Check optional project_brief_resolved.json
+    project_brief = project_path / "project_brief_resolved.json"
+    if project_brief.exists():
+        check_file_exists(project_brief, "project_brief_resolved.json (optional)")
 
     # Check prompt templates
     print("\nChecking prompt templates...")
@@ -108,6 +120,11 @@ def generate_manifest(project_path, prompts_dir):
 
         manifest["modules"].append(module_info)
 
+    # Add project_brief_resolved_path if it exists
+    project_brief_path = project_path / "project_brief_resolved.json"
+    if project_brief_path.exists():
+        manifest["project_brief_resolved_path"] = str(project_brief_path)
+
     return manifest
 
 
@@ -139,9 +156,13 @@ def generate_prompt(project_path, manifest):
             prompt += f"{file_num}. {module['evidence_path']}\n"
             file_num += 1
 
-    prompt += f"""
-如果有必要，再查看这些原始文件：
-"""
+    # Add project_brief_resolved.json to file list if it exists
+    has_project_brief = "project_brief_resolved_path" in manifest
+    if has_project_brief:
+        prompt += f"{file_num}. {manifest['project_brief_resolved_path']}\n"
+        file_num += 1
+
+    prompt += f"""如果有必要，再查看这些原始文件："""
 
     # Add original files (scripts and result tables)
     for module in manifest["modules"]:
@@ -173,10 +194,98 @@ def generate_prompt(project_path, manifest):
 6. 不要编造软件包、参数和阈值
 7. 有代码且一致时（confidence=high）可以写更具体
 8. 没有代码或不确定时（confidence=medium/low）写保守版 Methods
-9. 语气正式、克制、像论文 Methods
-10. 保存到：
+9. 语气正式、克制、像论文 Methods"""
+
+    # Add project_brief usage requirements
+    if has_project_brief:
+        prompt += """
+10. project_brief_resolved.json 可用于理解疾病背景、主线目标和研究重点
+11. 但 Methods 必须严格以实际流程文件、模块结果、代码痕迹、输入输出文件为准
+12. 不要把 brief 中的概括性描述写成不存在的方法细节，不要编造分析步骤"""
+
+    prompt += f"""
+保存到：
 {project_path}/methods_draft.md
 """
+
+    return prompt
+
+
+def generate_execute_prompt(project_path, manifest):
+    """Generate execution-specific prompt with inline file content."""
+    project_path = Path(project_path)
+
+    # Read project.yaml
+    with open(project_path / "project.yaml", "r", encoding="utf-8") as f:
+        project_yaml_content = f.read()
+
+    # Read storyline.md
+    with open(project_path / "storyline.md", "r", encoding="utf-8") as f:
+        storyline_content = f.read()
+
+    # Read prompt templates
+    with open(manifest["prompts"]["methods_writer"], "r", encoding="utf-8") as f:
+        methods_writer_content = f.read()
+
+    with open(manifest["prompts"]["module_rules"], "r", encoding="utf-8") as f:
+        module_rules_content = f.read()
+
+    prompt = f"""You are writing a Methods section for a scientific paper.
+
+PROJECT CONFIGURATION:
+```yaml
+{project_yaml_content}
+```
+
+STORYLINE:
+{storyline_content}
+
+METHODS WRITER GUIDELINES:
+{methods_writer_content}
+
+MODULE RULES:
+{module_rules_content}
+
+"""
+
+    # Inline each module's methods_context and optional files
+    for module in manifest["modules"]:
+        module_name = module["module_name"]
+        with open(module["methods_context_path"], "r", encoding="utf-8") as f:
+            mc = f.read()
+        prompt += f"MODULE: {module_name}\nMETHODS CONTEXT:\n{mc}\n\n"
+
+        if "module_context_path" in module:
+            with open(module["module_context_path"], "r", encoding="utf-8") as f:
+                prompt += f"MODULE CONTEXT:\n{f.read()}\n\n"
+
+        if "evidence_path" in module:
+            with open(module["evidence_path"], "r", encoding="utf-8") as f:
+                prompt += f"EVIDENCE:\n{f.read()}\n\n"
+
+    # Add project_brief if available
+    if "project_brief_resolved_path" in manifest:
+        with open(manifest["project_brief_resolved_path"], "r", encoding="utf-8") as f:
+            prompt += f"PROJECT BRIEF:\n{f.read()}\n\n"
+
+    prompt += """---
+
+INSTRUCTIONS:
+Write a Methods section in markdown format.
+
+REQUIREMENTS:
+1. Output ONLY the Methods text in markdown (no explanations, no meta-commentary)
+2. Write in English
+3. Organize into subsections following results_order
+4. Base methods strictly on methods_context files — do NOT fabricate parameters, thresholds, or software not evidenced
+5. When confidence=high (code matches results), write specific details
+6. When confidence=medium/low, write conservative generic descriptions
+7. Do NOT output <function_calls> or XML tags
+8. Do NOT describe your reading process
+9. Use formal, scientific writing style
+10. If project_brief is provided, use it for disease/theme context only — do NOT invent method steps from it
+
+Output the Methods section now:"""
 
     return prompt
 
@@ -188,14 +297,17 @@ def main():
         epilog="""
 Example usage:
   python3 write_methods.py --project /path/to/your/project
+  python3 write_methods.py --project /path/to/your/project --execute
 
 This will:
   1. Check all required files exist
   2. Generate methods_manifest.json
   3. Generate methods_prompt.txt
+  4. (with --execute) Directly generate methods_draft.md using LLM
         """
     )
     parser.add_argument("--project", required=True, help="Project directory path")
+    parser.add_argument("--execute", action="store_true", help="Execute LLM to generate methods_draft.md directly")
     args = parser.parse_args()
 
     project_path = Path(args.project).resolve()
@@ -248,7 +360,54 @@ This will:
 
     print(f"\n✓ Generated: {prompt_path}")
 
-    # Success summary
+    # Execute mode: directly generate methods_draft.md
+    if args.execute:
+        print("\n" + "=" * 60)
+        print("EXECUTING LLM TO GENERATE METHODS DRAFT")
+        print("=" * 60)
+
+        if not LLM_AVAILABLE:
+            print("\n✗ LLM client not available")
+            print("  Cannot execute in --execute mode")
+            sys.exit(1)
+
+        methods_draft_path = project_path / "methods_draft.md"
+
+        try:
+            print("\n✓ Generating execution prompt with inline content...")
+            execute_prompt = generate_execute_prompt(project_path, manifest)
+            print(f"  Prompt length: {len(execute_prompt)} chars")
+
+            print("\n✓ Calling LLM...")
+            methods_text = call(execute_prompt, max_tokens=3000)
+
+            print("✓ LLM response received")
+
+            with open(methods_draft_path, "w", encoding="utf-8") as f:
+                f.write(methods_text)
+
+            print(f"✓ Saved: {methods_draft_path}")
+            print(f"  - Length: {len(methods_text.split())} words")
+
+            print("\n" + "=" * 60)
+            print("EXECUTION COMPLETED SUCCESSFULLY")
+            print("=" * 60)
+            print("\nGenerated files:")
+            print(f"  1. {manifest_path}")
+            print(f"  2. {prompt_path} (debug artifact)")
+            print(f"  3. {methods_draft_path}")
+            print("\nNext steps:")
+            print(f"  1. Review the draft: cat {methods_draft_path}")
+            print(f"  2. Run write_abstract.py --execute")
+
+        except Exception as e:
+            print(f"\n✗ LLM execution failed: {e}")
+            print("  Prompt file is still available for manual use")
+            sys.exit(1)
+
+        return
+
+    # Success summary (non-execute mode)
     print("\n" + "=" * 60)
     print("PREPARATION COMPLETED SUCCESSFULLY")
     print("=" * 60)

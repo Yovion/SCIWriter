@@ -287,7 +287,7 @@ def assign_refs_to_theme(refs, keywords):
     """Assign references to a theme based on keywords."""
     theme_refs = []
     for ref in refs:
-        text = (ref.get('title', '') + " " + ref.get('abstract', '')).lower()
+        text = ((ref.get('title') or '') + " " + (ref.get('abstract') or '')).lower()
         if any(kw.lower() in text for kw in keywords):
             theme_refs.append(ref)
     return theme_refs
@@ -310,7 +310,7 @@ def extract_key_points_llm_discussion(theme_refs, theme_name, cancer_type, our_f
         return []
 
     abstracts_text = "\n\n".join([
-        f"[PMID:{ref['pmid']}] {ref['title']}\n{ref.get('abstract', '')[:500]}"
+        f"[PMID:{ref.get('pmid') or ''}] {ref.get('title') or ''}\n{(ref.get('abstract') or '')[:500]}"
         for ref in theme_refs[:10]
     ])
 
@@ -372,12 +372,12 @@ def extract_key_points_rules_discussion(theme_refs, theme_name):
     key_points = []
 
     for ref in theme_refs[:2]:
-        abstract = ref.get('abstract', '')
+        abstract = ref.get('abstract') or ''
         if abstract:
             first_sentence = abstract.split('.')[0] + '.'
             key_points.append({
                 'point': first_sentence,
-                'supporting_pmids': [ref['pmid']]
+                'supporting_pmids': [ref.get('pmid') or '']
             })
 
     return key_points
@@ -480,9 +480,13 @@ def format_themes_for_prompt_discussion(themes):
     lines = []
     for theme in themes:
         lines.append(f"\n## {theme['theme_name']}")
-        for kp in theme['key_points']:
-            pmids_str = "; ".join([f"PMID:{p}" for p in kp['supporting_pmids']])
-            lines.append(f"- {kp['point']} [{pmids_str}]")
+        for kp in theme.get('key_points', []):
+            point = kp.get('point') or ''
+            pmids_raw = kp.get('supporting_pmids') or []
+            pmids_str = "; ".join([f"PMID:{p}" for p in pmids_raw if p])
+            citation = f" [{pmids_str}]" if pmids_str else ""
+            if point:
+                lines.append(f"- {point}{citation}")
     return "\n".join(lines)
 
 
@@ -520,7 +524,65 @@ def validate_discussion_quality(discussion_text):
     return is_valid, issues
 
 
-def generate_discussion_text(lit_summary, cancer_type, results_summary, retry=False):
+def _generate_discussion_direct(cancer_type, results_draft_content, abstract_content,
+                                 intro_content, refs_list, retry=False):
+    """
+    Direct Discussion generation without lit_summary themes.
+    Used as fallback when literature summary generation fails.
+    """
+    if not LLM_AVAILABLE:
+        return None
+
+    results_text = (results_draft_content or "")[:3000]
+    abstract_text = (abstract_content or "")[:1000]
+    intro_text = (intro_content or "")[:1000]
+
+    refs_block = ""
+    if refs_list:
+        lines = [f"[PMID:{r.get('pmid') or ''}] ({r.get('year') or ''}) {r.get('title') or ''}"
+                 for r in refs_list[:20] if r.get('pmid')]
+        if lines:
+            refs_block = "\n\nAvailable references for citation:\n" + "\n".join(lines)
+
+    prompt = f"""Write a Discussion section for a scientific paper about {cancer_type}.
+
+ABSTRACT:
+{abstract_text}
+
+INTRODUCTION (excerpt):
+{intro_text}
+
+RESULTS:
+{results_text}{refs_block}
+
+Structure:
+Paragraph 1: Frame the study approach and overall outcome — do NOT restate exact numbers from Results/Abstract; write like a Discussion opening, not a Results summary
+Paragraph 2: Comparison with existing literature — cite PMIDs from the list above; dense citations; emphasize consistency/comparability; avoid strong biological inferences
+Paragraph 3: Methodological strengths — explain why DEG → Cox regression is a reasonable screening strategy; cite methodological papers if available
+Paragraph 4: Limitations (a) retrospective public-data analysis, (b) no independent cohort validation, (c) no experimental validation, (d) univariate Cox does not account for clinical confounders; conservative conclusion
+
+Requirements:
+1. Formal scientific English
+2. Insert PMID citations as [PMID:12345678]
+3. Exactly 4 paragraphs, 5-7 sentences each, 900-1200 words total
+4. Paragraph 2 must have the highest citation density
+5. Gene mention rules: at most 2-3 gene names across the whole Discussion; do NOT enumerate gene functions; do NOT write mechanistic interpretations (e.g. "may reflect aggressive metabolism") unless directly supported by cited evidence
+6. Do NOT use "novel", "breakthrough", "therapeutic target", "novel mechanism"
+7. Conservative language: "may", "suggest", "warrant further investigation", "candidate"
+8. Do NOT use template phrases: "is consistent with previous investigations", "provides a framework", "similar studies have shown"
+{"9. CRITICAL: write at least 4 PMID citations and at least 900 words" if retry else ""}
+
+Output ONLY the Discussion text (no title, no section header)."""
+
+    try:
+        return call(prompt, max_tokens=2500 if retry else 2000)
+    except Exception as e:
+        print(f"✗ Direct Discussion generation failed: {e}", file=sys.stderr)
+        return None
+
+
+def generate_discussion_text(lit_summary, cancer_type, results_summary, retry=False,
+                              results_draft_content=None, refs_list=None):
     """
     Generate Discussion text based on literature summary.
 
@@ -550,13 +612,29 @@ def generate_discussion_text(lit_summary, cancer_type, results_summary, retry=Fa
 
     themes_text = format_themes_for_prompt_discussion(lit_summary['themes'])
 
-    # Format results
-    num_genes = results_summary.get('num_significant_genes', 5)
-    method = results_summary.get('method', 'DEG-based Cox regression')
-    dataset = results_summary.get('dataset', 'TCGA')
-    results_text = f"""- Identified {num_genes} prognostic genes
+    # Format results — prefer real results_draft content over placeholder summary
+    if results_draft_content:
+        results_text = results_draft_content[:3000]  # cap to avoid token overflow
+    else:
+        num_genes = results_summary.get('num_significant_genes', 5)
+        method = results_summary.get('method', 'DEG-based Cox regression')
+        dataset = results_summary.get('dataset', 'TCGA')
+        results_text = f"""- Identified {num_genes} prognostic genes
 - Analysis method: {method}
 - Dataset: {dataset}"""
+
+    # Build a compact reference list for the LLM to cite from
+    refs_block = ""
+    if refs_list:
+        lines = []
+        for r in refs_list[:20]:
+            pmid = r.get('pmid') or ''
+            title = r.get('title') or ''
+            year = r.get('year') or ''
+            if pmid:
+                lines.append(f"[PMID:{pmid}] ({year}) {title}")
+        if lines:
+            refs_block = "\n\nAvailable references for citation:\n" + "\n".join(lines)
 
     # Base prompt
     base_prompt = f"""Write a Discussion section for a scientific paper with the following structure:
@@ -572,25 +650,21 @@ Our study results:
 {results_text}
 
 Available literature summary:
-{themes_text}
+{themes_text}{refs_block}
 
 Requirements:
 1. Use formal scientific writing style
 2. Insert PMID citations in format [PMID:12345678] or [PMID:12345678; PMID:23456789]
 3. Each paragraph should be 5-7 sentences
-4. Total length: 900-1200 words
-5. Focus on PATTERNS, not individual gene functions
-6. Avoid gene-by-gene enumeration
-7. Paragraph 1 should mostly describe our results (minimal citations)
-8. Paragraph 2 should have dense citations (comparison)
-9. Paragraph 3 should cite methodological papers
-10. Paragraph 4 can have sparse citations
-11. Do NOT use "novel", "breakthrough", "therapeutic target"
-12. Use conservative language: "may", "suggest", "warrant further investigation"
-13. Paragraph 4 must include three specific limitations:
-    - Retrospective public-data-based analysis
-    - Lack of independent cohort validation
-    - Lack of experimental validation
+4. Total length: 900-1200 words, exactly 4 paragraphs
+5. Paragraph 1: frame the study approach and overall outcome — do NOT restate exact numbers from Results/Abstract; do NOT paraphrase the Abstract; write like a Discussion opening
+6. Paragraph 2: dense citations (comparison with literature); emphasize consistency/comparability; avoid strong biological inferences beyond what cited papers support
+7. Paragraph 3: cite methodological papers; explain why DEG → Cox regression is a reasonable screening strategy
+8. Paragraph 4: sparse citations; must include all four limitations: (a) retrospective public-data analysis, (b) no independent cohort validation, (c) no experimental validation, (d) univariate Cox does not account for clinical confounders
+9. Gene mention rules: mention at most 2-3 genes by name across the whole Discussion; do NOT enumerate gene functions one by one; do NOT write mechanistic interpretations (e.g. "may reflect aggressive metabolism") unless directly supported by cited evidence; focus on patterns and screening outcomes
+10. Do NOT use "novel", "breakthrough", "therapeutic target", "novel mechanism"
+11. Use conservative language: "may", "suggest", "warrant further investigation", "candidate"
+12. Do NOT use template phrases: "is consistent with previous investigations", "provides a framework", "similar studies have shown"
 """
 
     # Add stricter requirements for retry
@@ -763,44 +837,44 @@ This will:
     lit_summary_path = None
     lit_summary_data = None
 
-    # Try to reuse Introduction references
-    intro_refs_path = project_path / "introduction_refs_selected.json"
-    if intro_refs_path.exists():
+    # PRIORITY 1: Check for shared PubMed search results (from search_pubmed.py --purpose discussion)
+    pubmed_results_discussion = project_path / "pubmed_results_discussion.json"
+    pubmed_refs_brief_discussion = project_path / "pubmed_refs_brief_discussion.md"
+
+    if pubmed_results_discussion.exists():
         print("\n" + "=" * 60)
-        print("LITERATURE REUSE AND SUMMARY")
+        print("USING SHARED PUBMED SEARCH RESULTS")
         print("=" * 60)
+        print(f"✓ Found: {pubmed_results_discussion}")
+        print(f"✓ Found: {pubmed_refs_brief_discussion}")
 
         try:
-            # Load Introduction references
-            with open(intro_refs_path, 'r', encoding='utf-8') as f:
-                intro_refs_data = json.load(f)
+            # Load shared PubMed results
+            with open(pubmed_results_discussion, 'r', encoding='utf-8') as f:
+                pubmed_data = json.load(f)
 
-            # Filter reusable references
-            reused_refs = filter_reusable_intro_refs(intro_refs_data)
-            print(f"✓ Reused {len(reused_refs)} references from Introduction")
+            articles = pubmed_data.get('articles', [])
+            print(f"✓ Loaded {len(articles)} articles from shared search")
 
-            # Supplement if insufficient
-            if len(reused_refs) < 5:
-                print(f"\n  ⚠️  Only {len(reused_refs)} reusable references, supplementing...")
-                cancer_type = "cancer"
-                project_brief_path = project_path / "project_brief_resolved.json"
-                if project_brief_path.exists():
-                    with open(project_brief_path, 'r', encoding='utf-8') as f:
-                        project_context = json.load(f)
-                        cancer_type = project_context.get('disease', {}).get('name', 'cancer')
-
-                new_refs = supplement_discussion_refs(cancer_type)
-                reused_refs.extend(new_refs)
-                print(f"  ✓ Added {len(new_refs)} supplementary references")
-                print(f"  Total: {len(reused_refs)} references")
+            # Convert to refs format
+            reused_refs = []
+            for article in articles:
+                reused_refs.append({
+                    'pmid': article.get('pmid', ''),
+                    'title': article.get('title', ''),
+                    'abstract': article.get('abstract', ''),
+                    'journal': article.get('journal', ''),
+                    'year': article.get('year', ''),
+                    'doi': article.get('doi', ''),
+                    'source': 'shared_search'
+                })
 
             # Build discussion_refs_selected.json
             refs_selected_data = {
                 'metadata': {
                     'total_refs': len(reused_refs),
-                    'reused_from_intro': len([r for r in reused_refs if r.get('source') == 'intro_reused']),
-                    'newly_searched': len([r for r in reused_refs if r.get('source') == 'discussion_new']),
-                    'search_date': datetime.now().isoformat()
+                    'source': 'shared_pubmed_search',
+                    'search_date': pubmed_data.get('query_date', datetime.now().isoformat())
                 },
                 'references': reused_refs
             }
@@ -811,56 +885,69 @@ This will:
 
             print(f"✓ Saved: {refs_selected_path}")
 
-            # PROTECTION: Check if we have valid references
-            if refs_selected_data['metadata']['total_refs'] == 0 or not refs_selected_data['references']:
-                print("\n" + "=" * 60)
-                print("⚠️  WARNING: NO VALID REFERENCES AVAILABLE")
-                print("=" * 60)
-                print("  Cannot generate Discussion with literature-based citations.")
-                print("  Reason: No reusable references from Introduction and no supplementary search results.")
-                print("  Falling back to prompt generation mode...")
-                print("=" * 60)
-                lit_summary_data = None  # Skip literature summary and text generation
-            else:
-                # Get cancer type
-                cancer_type = "cancer"
-                project_brief_path = project_path / "project_brief_resolved.json"
-                if project_brief_path.exists():
-                    with open(project_brief_path, 'r', encoding='utf-8') as f:
-                        project_context = json.load(f)
-                        cancer_type = project_context.get('disease', {}).get('name', 'cancer')
+        except Exception as e:
+            print(f"✗ Failed to load shared PubMed results: {e}")
+            print("  Falling back to Introduction reuse...")
+            pubmed_results_discussion = None  # Trigger fallback
 
-                # Build results_summary from available data
-                results_summary = {
-                    'num_significant_genes': 5,
-                    'method': 'DEG-based Cox regression',
-                    'dataset': 'TCGA'
+    # FALLBACK: Try to reuse Introduction references
+    _discussion_pubmed_missing = (pubmed_results_discussion is None or
+                                   not Path(pubmed_results_discussion).exists())
+    if _discussion_pubmed_missing or refs_selected_data is None:
+        intro_refs_path = project_path / "introduction_refs_selected.json"
+        if intro_refs_path.exists():
+            print("\n" + "=" * 60)
+            print("LITERATURE REUSE AND SUMMARY (FALLBACK)")
+            print("=" * 60)
+
+            try:
+                # Load Introduction references
+                with open(intro_refs_path, 'r', encoding='utf-8') as f:
+                    intro_refs_data = json.load(f)
+
+                # Filter reusable references
+                reused_refs = filter_reusable_intro_refs(intro_refs_data)
+                print(f"✓ Reused {len(reused_refs)} references from Introduction")
+
+                # Supplement if insufficient
+                if len(reused_refs) < 5:
+                    print(f"\n  ⚠️  Only {len(reused_refs)} reusable references, supplementing...")
+                    cancer_type = "cancer"
+                    project_brief_path = project_path / "project_brief_resolved.json"
+                    if project_brief_path.exists():
+                        with open(project_brief_path, 'r', encoding='utf-8') as f:
+                            project_context = json.load(f)
+                            cancer_type = project_context.get('disease', {}).get('name', 'cancer')
+
+                    new_refs = supplement_discussion_refs(cancer_type)
+                    reused_refs.extend(new_refs)
+                    print(f"  ✓ Added {len(new_refs)} supplementary references")
+                    print(f"  Total: {len(reused_refs)} references")
+
+                # Build discussion_refs_selected.json
+                refs_selected_data = {
+                    'metadata': {
+                        'total_refs': len(reused_refs),
+                        'reused_from_intro': len([r for r in reused_refs if r.get('source') == 'intro_reused']),
+                        'newly_searched': len([r for r in reused_refs if r.get('source') == 'discussion_new']),
+                        'search_date': datetime.now().isoformat()
+                    },
+                    'references': reused_refs
                 }
 
-                # Generate literature summary
-                lit_summary_data = generate_lit_summary_discussion(
-                    reused_refs,
-                    cancer_type,
-                    results_summary
-                )
+                refs_selected_path = project_path / "discussion_refs_selected.json"
+                with open(refs_selected_path, 'w', encoding='utf-8') as f:
+                    json.dump(refs_selected_data, f, indent=2, ensure_ascii=False)
 
-                lit_summary_path = project_path / "discussion_lit_summary.json"
-                with open(lit_summary_path, 'w', encoding='utf-8') as f:
-                    json.dump(lit_summary_data, f, indent=2, ensure_ascii=False)
+                print(f"✓ Saved: {refs_selected_path}")
 
-                print(f"\n✓ Literature summary saved to: {lit_summary_path}")
-                print(f"  - {len(lit_summary_data['themes'])} themes")
-                print(f"  - Method: {lit_summary_data['metadata']['method']}")
+            except Exception as e:
+                print(f"✗ Literature processing failed: {e}")
+                print("  Continuing without literature summary...")
+                refs_selected_data = None
 
-        except Exception as e:
-            print(f"✗ Literature processing failed: {e}")
-            print("  Continuing without literature summary...")
-            lit_summary_data = None
-
-    # NEW: Phase - Discussion Text Generation
-    discussion_draft_path = project_path / "discussion_draft.md"
-
-    if lit_summary_data and LLM_AVAILABLE:
+    # Continue with literature summary generation if we have refs
+    if refs_selected_data and refs_selected_data.get('references'):
         try:
             # Get cancer type
             cancer_type = "cancer"
@@ -870,61 +957,119 @@ This will:
                     project_context = json.load(f)
                     cancer_type = project_context.get('disease', {}).get('name', 'cancer')
 
-            # Build results_summary
+            # Build results_summary from available data
             results_summary = {
                 'num_significant_genes': 5,
                 'method': 'DEG-based Cox regression',
                 'dataset': 'TCGA'
             }
 
-            # Generate Discussion text
-            discussion_text = generate_discussion_text(
-                lit_summary_data,
+            # Generate literature summary
+            lit_summary_data = generate_lit_summary_discussion(
+                refs_selected_data['references'],
                 cancer_type,
                 results_summary
             )
 
-            if discussion_text:
-                # Validate quality
-                is_valid, issues = validate_discussion_quality(discussion_text)
+            lit_summary_path = project_path / "discussion_lit_summary.json"
+            with open(lit_summary_path, 'w', encoding='utf-8') as f:
+                json.dump(lit_summary_data, f, indent=2, ensure_ascii=False)
 
+            print(f"\n✓ Literature summary saved to: {lit_summary_path}")
+            print(f"  - {len(lit_summary_data['themes'])} themes")
+            print(f"  - Method: {lit_summary_data['metadata']['method']}")
+
+        except Exception as e:
+            print(f"✗ Literature summary generation failed: {e}")
+            print("  Continuing without literature summary...")
+            lit_summary_data = None
+
+    # NEW: Phase - Discussion Text Generation
+    discussion_draft_path = project_path / "discussion_draft.md"
+
+    if LLM_AVAILABLE:
+        try:
+            # Get cancer type
+            cancer_type = "cancer"
+            project_brief_path = project_path / "project_brief_resolved.json"
+            if project_brief_path.exists():
+                with open(project_brief_path, 'r', encoding='utf-8') as f:
+                    project_context = json.load(f)
+                    cancer_type = project_context.get('disease', {}).get('name', 'cancer')
+
+            # Read section drafts
+            def _read(p):
+                return p.read_text(encoding='utf-8') if p.exists() else None
+
+            results_draft_content = _read(project_path / "results_draft.md")
+            abstract_draft_content = _read(project_path / "abstract_draft.md")
+            intro_draft_content = _read(project_path / "introduction_draft.md")
+
+            results_summary = {
+                'num_significant_genes': 5,
+                'method': 'DEG-based Cox regression',
+                'dataset': 'TCGA'
+            }
+            refs_list = refs_selected_data.get('references', []) if refs_selected_data else []
+
+            if lit_summary_data:
+                discussion_text = generate_discussion_text(
+                    lit_summary_data,
+                    cancer_type,
+                    results_summary,
+                    results_draft_content=results_draft_content,
+                    refs_list=refs_list
+                )
+            else:
+                # Fallback: direct inline prompt without lit_summary themes
+                print("\n" + "=" * 60)
+                print("DISCUSSION TEXT GENERATION (direct fallback)")
+                print("=" * 60)
+                discussion_text = _generate_discussion_direct(
+                    cancer_type,
+                    results_draft_content,
+                    abstract_draft_content,
+                    intro_draft_content,
+                    refs_list
+                )
+
+            if discussion_text:
+                is_valid, issues = validate_discussion_quality(discussion_text)
                 if not is_valid:
                     print("\n⚠️  Quality check failed:")
                     for issue in issues:
                         print(f"    - {issue}")
-
-                    # Automatic retry once
-                    discussion_text = generate_discussion_text(
-                        lit_summary_data,
-                        cancer_type,
-                        results_summary,
-                        retry=True
-                    )
-
+                    # Retry once
+                    if lit_summary_data:
+                        discussion_text = generate_discussion_text(
+                            lit_summary_data, cancer_type, results_summary,
+                            retry=True,
+                            results_draft_content=results_draft_content,
+                            refs_list=refs_list
+                        )
+                    else:
+                        discussion_text = _generate_discussion_direct(
+                            cancer_type, results_draft_content,
+                            abstract_draft_content, intro_draft_content,
+                            refs_list, retry=True
+                        )
                     if discussion_text:
-                        # Re-validate after retry
                         is_valid, issues = validate_discussion_quality(discussion_text)
                         if not is_valid:
-                            print("\n⚠️  Quality check still failed after retry:")
-                            for issue in issues:
-                                print(f"    - {issue}")
-                            print("  Keeping current output anyway...")
+                            print("\n⚠️  Quality check still failed after retry — keeping output anyway")
                         else:
                             print("\n✓ Quality check passed after retry")
                 else:
                     print("\n✓ Quality check passed")
 
-                # Save to file
                 with open(discussion_draft_path, 'w', encoding='utf-8') as f:
                     f.write(discussion_text)
-
                 print(f"\n✓ Discussion draft saved to: {discussion_draft_path}")
                 print(f"  - Length: {len(discussion_text.split())} words")
 
         except Exception as e:
             print(f"\n✗ Discussion text generation failed: {e}")
-            print("  Falling back to prompt generation...")
-            lit_summary_data = None  # Force prompt generation
+            print("  discussion_prompt.txt is available for manual use")
 
     # Generate manifest
     print("\n" + "=" * 60)
